@@ -2,11 +2,9 @@
 
 CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -D_POSIX_C_SOURCE=200112L
 
-COMBOS = csv
-# LEXO     = $(COMBOS:=.lex.o) words.o
-# YACCO    = $(COMBOS:=.tab.o)
-LEXO   = words.o
-YACCO  = 
+COMBOS = lisp
+LEXO     = $(COMBOS:=.lex.o) words.o
+YACCO    = $(COMBOS:=.tab.o)
 
 .SUFFIXES :
 .SUFFIXES : .a .o .c .l .y

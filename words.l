@@ -34,4 +34,3 @@ int word_callback(char *s, void (*f)(const char *))
 	yylex_destroy(scanner);
 	return 0;
 }
-
