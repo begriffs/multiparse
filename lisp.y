@@ -1,19 +1,17 @@
-%{
-/*
-extern void lisperror(YYLTYPE *locp, char const *msg);
-extern int lisplex(YYSTYPE *lvalp, YYLTYPE *llocp);
-*/
-%}
-
-%define api.pure full
 %define api.prefix {lisp}
+%define api.pure true
+
+%{
+extern void lisperror(char const *msg);
+extern int  lisplex(void *lval);
+%}
 
 %token ID NUM
 
 %%
 
 sexpr  : atom
-	   | '(' sexpr '.' sexpr ')'
+       | '(' sexpr '.' sexpr ')'
        | sexprs
        ;
 sexprs : sexpr sexprs
