@@ -3,6 +3,10 @@
 CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -D_POSIX_C_SOURCE=200112L
 YFLAGS += -Wno-yacc
 
+# yes, sorry, need extensions beyond POSIX lex/yacc
+LEX = flex
+YACC = bison
+
 COMBOS = lisp
 LEXO     = $(COMBOS:=.lex.o) words.o
 YACCO    = $(COMBOS:=.tab.o)
