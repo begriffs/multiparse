@@ -1,4 +1,4 @@
-%option nounput noinput prefix="lisp"
+%option noyywrap nounput noinput prefix="lisp"
 
 %{
 #include "lisp.tab.h"

@@ -15,3 +15,12 @@ $fmt.lex.c : $fmt.l $fmt.tab.h parsers.h
 
 EOF
 done
+
+for d in driver_words driver_lisp
+do
+cat >> config.mk <<EOF
+$d : $d.o parsers.a
+$d.o : $d.c parsers.h
+
+EOF
+done

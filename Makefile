@@ -10,8 +10,7 @@ YACCO    = $(COMBOS:=.tab.o)
 .SUFFIXES :
 .SUFFIXES : .a .o .c .l .y
 
-driver : driver.o parsers.a
-driver.o : driver.c parsers.h
+drivers : driver_words driver_lisp
 
 include config.mk
 
