@@ -1,6 +1,7 @@
 .POSIX:
 
 CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -D_POSIX_C_SOURCE=200112L
+YFLAGS += -Wno-yacc
 
 COMBOS = lisp
 LEXO     = $(COMBOS:=.lex.o) words.o

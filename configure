@@ -8,10 +8,10 @@ for fmt in lisp
 do
 cat >> config.mk <<EOF
 $fmt.tab.c $fmt.tab.h : $fmt.y parsers.h
-	\$(YACC) -d -b $fmt $fmt.y
+	\$(YACC) \$(YFLAGS) -d -b $fmt $fmt.y
 
 $fmt.lex.c : $fmt.l $fmt.tab.h parsers.h
-	\$(LEX) -t $fmt.l > $fmt.lex.c
+	\$(LEX) \$(LFLAGS) -t $fmt.l > $fmt.lex.c
 
 EOF
 done
