@@ -13,23 +13,23 @@
  * for each, but with different names.
  */
 
-#define X(SCAN)                                                 \
-	void *SCANalloc(size_t size, void *yyscanner)               \
-	{                                                           \
-		(void) yyscanner;                                       \
-		return malloc(size);                                    \
-	}                                                           \
-	                                                            \
-	void *SCANrealloc(void * ptr, size_t size, void *yyscanner) \
-	{                                                           \
-		(void) yyscanner;                                       \
-		return realloc(ptr, size);                              \
-	}                                                           \
-	                                                            \
-	void SCANfree(void *ptr, void *yyscanner)                   \
-	{                                                           \
-		(void) yyscanner;                                       \
-		free(ptr);                                              \
+#define X(SCAN)                                                   \
+	void *SCAN##alloc(size_t size, void *yyscanner)               \
+	{                                                             \
+		(void) yyscanner;                                         \
+		return malloc(size);                                      \
+	}                                                             \
+	                                                              \
+	void *SCAN##realloc(void * ptr, size_t size, void *yyscanner) \
+	{                                                             \
+		(void) yyscanner;                                         \
+		return realloc(ptr, size);                                \
+	}                                                             \
+	                                                              \
+	void SCAN##free(void *ptr, void *yyscanner)                   \
+	{                                                             \
+		(void) yyscanner;                                         \
+		free(ptr);                                                \
 	}
 SCANNERS
 #undef X
