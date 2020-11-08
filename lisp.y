@@ -15,10 +15,10 @@ sexpr  : atom
        | sexprs
        ;
 sexprs : sexpr sexprs
-	   | sexpr
+       | sexpr
        ;
 atom   : ID
-	   | NUM
+       | NUM
        ;
 
 %%
