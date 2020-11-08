@@ -24,4 +24,4 @@ parsers.a : $(LEXO) $(YACCO) parsers.o
 $(LEXO) $(YACCO) : parsers.h
 
 clean :
-	rm -f *.[ao]
+	rm -f *.[ao] *.lex.c *.tab.[ch]
