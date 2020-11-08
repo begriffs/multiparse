@@ -1,5 +1,6 @@
 %option nounput noinput noyywrap noyyalloc noyyfree noyyrealloc
 %option reentrant
+%option prefix="words"
 
 %{
 #include <stdio.h>
