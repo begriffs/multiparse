@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 /* My own implementation of the selected reentrant functions that marks
