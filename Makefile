@@ -16,6 +16,10 @@ YACCO    = $(COMBOS:=.tab.o)
 
 drivers : driver_words driver_lisp
 
+# for the drivers:
+.o:
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< parsers.a
+
 include config.mk
 
 parsers.a : $(LEXO) $(YACCO) parsers.o
