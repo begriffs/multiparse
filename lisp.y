@@ -1,5 +1,6 @@
 %define api.prefix {lisp}
 %define api.pure true
+%define parse.error verbose
 
 %{
 #include <stdio.h>
