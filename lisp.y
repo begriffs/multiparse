@@ -1,5 +1,6 @@
 %define api.prefix {lisp}
 %define api.pure true
+%define api.value.type {struct sexpr*}
 %define parse.error verbose
 
 %{
@@ -22,7 +23,9 @@ list: '(' members ')'       {printf("matched list\n");}
 members: sexpr              {printf("members 1\n");}
     | sexpr members         {printf("members 2\n");}
     ;
-atom: ID                    {printf("ID\n");}
+atom: ID {
+		
+	}
     | NUM                   {printf("NUM\n");}
     ;
 
@@ -32,3 +35,10 @@ int lisperror(char const *msg)
 {
 	return fprintf(stderr, "%s\n", msg);
 }
+
+/*
+struct sexpr *parse_sexpr(const char *s, char **errmsg)
+{
+
+}
+*/
