@@ -1,6 +1,5 @@
-%define api.prefix {lisp}
 %define api.pure true
-%define api.value.type {struct sexpr*}
+%define api.prefix {lisp}
 %define parse.error verbose
 
 %{
@@ -10,7 +9,14 @@ int lisperror(char const *msg);
 int lisplex(void *lval);
 %}
 
-%token ID NUM
+%union
+{
+	int num;
+	char *str;
+}
+
+%token <str> ID
+%token <num> NUM
 
 %%
 
