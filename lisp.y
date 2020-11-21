@@ -24,12 +24,12 @@ int lisplex(void *lval);
 %token <str> ID
 %token <num> NUM
 
-%type <node> eval sexpr pair atom
+%type <node> start sexpr pair atom
 
 %%
 
-eval : '=' sexpr   { *result = $$ = $2; }
-	 ;
+start : sexpr   { *result = $1; return 0; }
+	  ;
 
 sexpr: atom
      | pair
@@ -80,10 +80,3 @@ int lisperror(void *foo, char const *msg)
 	(void)foo;
 	return fprintf(stderr, "%s\n", msg);
 }
-
-/*
-struct sexpr *parse_sexpr(const char *s, char **errmsg)
-{
-
-}
-*/
