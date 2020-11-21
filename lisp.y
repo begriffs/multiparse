@@ -1,6 +1,7 @@
 %define api.pure true
 %define api.prefix {lisp}
 %define parse.error verbose
+%parse-param {struct sexpr **result}
 
 %{
 #include <stdio.h>
@@ -9,7 +10,7 @@
 
 #include "parsers.h"
 
-int lisperror(char const *msg);
+int lisperror(void *foo, char const *msg);
 int lisplex(void *lval);
 %}
 
@@ -23,15 +24,18 @@ int lisplex(void *lval);
 %token <str> ID
 %token <num> NUM
 
-%type <node> sexpr pair atom
+%type <node> eval sexpr pair atom
 
 %%
+
+eval : '=' sexpr   { *result = $$ = $2; }
+	 ;
 
 sexpr: atom
      | pair
      ;
 
-pair: '(' atom '.' atom ')' {
+pair: '(' sexpr '.' sexpr ')' {
 		struct sexpr *s = malloc(sizeof *s);
 		if (!s) abort();
 		*s = (struct sexpr){
@@ -71,8 +75,9 @@ atom: ID {
 
 %%
 
-int lisperror(char const *msg)
+int lisperror(void *foo, char const *msg)
 {
+	(void)foo;
 	return fprintf(stderr, "%s\n", msg);
 }
 

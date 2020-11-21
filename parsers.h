@@ -10,8 +10,6 @@
 int word_callback(char *, void (*)(const char *));
 
 /* lisp.y */
-int lispparse(void);
-
 enum sexpr_type {
 	SEXPR_ID, SEXPR_NUM, SEXPR_PAIR
 };
@@ -26,5 +24,7 @@ struct sexpr
 	} value;
 	struct sexpr *left, *right;
 };
+
+int lispparse (struct sexpr **result);
 
 #endif
