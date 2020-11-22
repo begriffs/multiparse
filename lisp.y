@@ -24,7 +24,7 @@ int lisplex(void *lval);
 %token <str> ID
 %token <num> NUM
 
-%type <node> start sexpr pair atom
+%type <node> start sexpr pair list members atom
 
 %%
 
@@ -32,27 +32,57 @@ start : sexpr   { *result = $1; return 0; }
 	  ;
 
 sexpr: atom
-     | pair
+     | list
+	 | pair
      ;
 
-pair: '(' sexpr '.' sexpr ')' {
-		struct sexpr *s = malloc(sizeof *s);
-		if (!s) abort();
-		*s = (struct sexpr){
-			.type = SEXPR_PAIR,
-			.left = $2,
-			.right = $4
-		};
-		$$ = s;
+list: '(' members ')' {
+		$$ = $2;
 	}
-    | '('')' {
+	| '('')' {
 		struct sexpr *s = malloc(sizeof *s);
 		if (!s) abort();
 		/* empty pair */
 		*s = (struct sexpr){.type = SEXPR_PAIR};
 		$$ = s;
 	}
-    ;
+	;
+
+members: sexpr {
+		struct sexpr *s = malloc(sizeof *s),
+		             *nil = malloc(sizeof *nil);;
+		if (!s || !nil) abort();
+		*nil = (struct sexpr){.type = SEXPR_PAIR};
+		*s = (struct sexpr){
+			.type = SEXPR_PAIR,
+			.left = $1,
+			.right = nil
+		};
+		$$ = s;
+	}
+	| sexpr members {
+		struct sexpr *s = malloc(sizeof *s);
+		if (!s) abort();
+		*s = (struct sexpr){
+			.type = SEXPR_PAIR,
+			.left = $1,
+			.right = $2
+		};
+		$$ = s;
+	}
+	;
+
+pair: '(' sexpr '.' sexpr ')' {
+	struct sexpr *s = malloc(sizeof *s);
+	if (!s) abort();
+	*s = (struct sexpr){
+		.type = SEXPR_PAIR,
+		.left = $2,
+		.right = $4
+	};
+	$$ = s;
+}
+
 atom: ID {
 		struct sexpr *s = malloc(sizeof *s);
 		if (!s) abort();

@@ -32,7 +32,9 @@ void pretty(struct sexpr* s, unsigned depth)
 int main(void)
 {
 	struct sexpr *s;
-	if (lispparse(&s) == 0)
+	int e = lispparse(&s);
+	printf("Code = %d\n", e);
+	if (e == 0)
 		pretty(s, 0);
 	return 0;
 }
