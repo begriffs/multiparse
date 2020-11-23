@@ -25,7 +25,5 @@ include config.mk
 parsers.a : $(LEXO) $(YACCO) parsers.o
 	ar r $@ $?
 
-$(LEXO) $(YACCO) : parsers.h
-
 clean :
 	rm -f *.[ao] *.lex.c *.tab.[ch]

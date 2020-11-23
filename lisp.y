@@ -1,18 +1,35 @@
 %define api.pure true
 %define api.prefix {lisp}
 %define parse.error verbose
+
 %parse-param {struct sexpr **result}
+%param {void *scanner}
 
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "parsers.h"
-
-int lisperror(void *foo, char const *msg);
-int lisplex(void *lval);
+int lisperror(void *foo, char const *msg, const void *s);
+int lisplex(void *lval, const void *s);
 %}
+
+%code provides {
+enum sexpr_type {
+	SEXPR_ID, SEXPR_NUM, SEXPR_PAIR
+};
+
+struct sexpr
+{
+	enum sexpr_type type;
+	union
+	{
+		int   num;
+		char *id;
+	} value;
+	struct sexpr *left, *right;
+};
+}
 
 %union
 {
@@ -105,8 +122,9 @@ atom: ID {
 
 %%
 
-int lisperror(void *foo, char const *msg)
+int lisperror(void *yylval, char const *msg, const void *s)
 {
-	(void)foo;
+	(void)yylval;
+	(void)s;
 	return fprintf(stderr, "%s\n", msg);
 }

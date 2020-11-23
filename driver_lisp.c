@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "parsers.h"
+#include "lisp.h"
 
 void pretty(struct sexpr* s, unsigned depth)
 {
@@ -31,10 +31,18 @@ void pretty(struct sexpr* s, unsigned depth)
 
 int main(void)
 {
-	struct sexpr *s;
-	int e = lispparse(&s);
+	int i;
+	struct sexpr *expr;
+	yyscan_t scanner;
+
+	if ((i = lisplex_init(&scanner)) != 0)
+		exit(i);
+
+	int e = lispparse(&expr, scanner);
 	printf("Code = %d\n", e);
 	if (e == 0)
-		pretty(s, 0);
+		pretty(expr, 0);
+
+	lisplex_destroy(scanner);
 	return 0;
 }

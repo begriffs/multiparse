@@ -4,7 +4,6 @@
 
 %{
 #include <stdio.h>
-#include "parsers.h"
 
 #define WORD 1
 %}

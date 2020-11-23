@@ -1,9 +1,9 @@
 %option noyywrap nounput noinput
-%option prefix="lisp" bison-bridge
+%option prefix="lisp"
+%option reentrant bison-bridge
 
 %{
 #include "lisp.tab.h"
-#include "parsers.h"
 
 #include <limits.h>
 #include <stdlib.h>

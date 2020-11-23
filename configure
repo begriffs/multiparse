@@ -4,23 +4,30 @@
 
 rm -f config.mk
 
-for fmt in lisp
+# everybody uses a lexer
+
+for fmt in words lisp
 do
 cat >> config.mk <<EOF
-$fmt.tab.c $fmt.tab.h : $fmt.y parsers.h
-	\$(YACC) \$(YFLAGS) -d -b $fmt $fmt.y
+$fmt.lex.c $fmt.lex.h : $fmt.l
+	\$(LEX) \$(LFLAGS) --header-file=$fmt.lex.h -t $fmt.l > $fmt.lex.c
 
-$fmt.lex.c : $fmt.l $fmt.tab.h parsers.h
-	\$(LEX) \$(LFLAGS) -t $fmt.l > $fmt.lex.c
+driver_$fmt : driver_$fmt.o parsers.a
+driver_$fmt.o : driver_$fmt.c $fmt.h $fmt.lex.h
 
 EOF
 done
 
-for d in driver_words driver_lisp
+# and some user a parser too
+
+for fmt in lisp
 do
 cat >> config.mk <<EOF
-$d : $d.o parsers.a
-$d.o : $d.c parsers.h
+$fmt.tab.c $fmt.tab.h : $fmt.y
+	\$(YACC) \$(YFLAGS) -d -b $fmt $fmt.y
+driver_$fmt.o : $fmt.tab.h
+
+$fmt.lex.c $fmt.lex.h : $fmt.tab.h
 
 EOF
 done
