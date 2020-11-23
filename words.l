@@ -5,6 +5,8 @@
 %{
 #include <stdio.h>
 
+#define YY_EXIT_FAILURE ((void)yyscanner, EXIT_FAILURE)
+
 #define WORD 1
 %}
 

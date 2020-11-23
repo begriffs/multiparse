@@ -1,9 +1,12 @@
 %option noyywrap nounput noinput
+%option noyyalloc noyyrealloc noyyfree
 %option prefix="lisp"
 %option reentrant bison-bridge
 
 %{
 #include "lisp.tab.h"
+
+#define YY_EXIT_FAILURE ((void)yyscanner, EXIT_FAILURE)
 
 #include <limits.h>
 #include <stdlib.h>
