@@ -7,7 +7,7 @@ YFLAGS += -Wno-yacc
 LEX = flex
 YACC = bison
 
-COMBOS = lisp
+COMBOS = lisp csv
 LEXO     = $(COMBOS:=.lex.o) words.o
 YACCO    = $(COMBOS:=.tab.o)
 

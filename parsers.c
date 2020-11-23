@@ -6,7 +6,8 @@
 
 #define SCANNERS \
 	X(words) \
-	X(lisp)
+	X(lisp) \
+	X(csv)
 
 /* Each scanner uses its own prefix, and we'll create the same functions
  * for each, but with different names.
