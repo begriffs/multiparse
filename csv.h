@@ -7,4 +7,6 @@
 #include "csv.tab.h"
 #include "csv.lex.h"
 
+int csv_parse(char *s);
+
 #endif
