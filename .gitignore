@@ -1,0 +1,9 @@
+config.mk
+*.[oa]
+*.tab.[ch]
+*.lex.[ch]
+*.core
+
+driver_csv
+driver_lisp
+driver_words
