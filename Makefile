@@ -16,13 +16,6 @@ YACCO    = $(COMBOS:=.tab.o)
 
 drivers : driver_words driver_lisp driver_csv
 
-test : test.c parsers.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ test.c parsers.a
-
-.PHONY: watch
-watch :
-	echo test.c | entr -s 'make test && ./test'
-
 # for the drivers:
 .o:
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< parsers.a

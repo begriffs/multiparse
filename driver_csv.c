@@ -10,9 +10,8 @@ int main(void)
 	if ((i = csvlex_init(&scanner)) != 0)
 		exit(i);
 
-	int e = csvparse(scanner);
-	printf("Code = %d\n", e);
+	i = csvparse(scanner);
 
 	csvlex_destroy(scanner);
-	return 0;
+	return i;
 }
