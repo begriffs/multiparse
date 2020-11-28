@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int csverror(char const *msg, const void *s);
+int csverror(const void *s, const char *msg);
 int csvlex(void *lval, const void *s);
 %}
 
@@ -17,8 +17,8 @@ int csvlex(void *lval, const void *s);
 
 %%
 
-file : record            { puts("file1"); }
-	 | file CRLF record  { puts("file2"); }
+file : record                 { puts("file1"); }
+	 | file CRLF record       { puts("file2"); }
      ;
 
 record : field             { puts("record1"); }
@@ -31,7 +31,7 @@ field : ESCAPED         { puts("field1"); }
 
 %%
 
-int csverror(char const *msg, const void *s)
+int csverror(const void *s, const char *msg)
 {
 	(void)s;
 	return fprintf(stderr, "%s\n", msg);

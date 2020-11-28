@@ -15,7 +15,7 @@
 
 \"([^"]|[,\r\n]|\"\")*\" { return ESCAPED; }
 [^",\r\n]* { return NONESCAPED; }
-\r\n       { return CRLF; }
+\n         { return CRLF; }
 .          { return *yytext; }
 
 %%
