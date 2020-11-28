@@ -1,10 +1,19 @@
 #! /bin/sh
 
-for f in test/*.csv
-do
-	if ./driver_csv < "$f" ; then
-		echo "x $f"
+unit ()
+{
+	if ./driver_csv < "$1" ; then
+		>&2 echo "PASS: $1"
 	else
-		echo "FAIL: $f"
+		>&2 echo "FAIL: $1"
 	fi
-done
+}
+
+if [ "$#" -eq 1 ] ; then
+	unit "$1"
+else
+	for f in test/*.csv
+	do
+		unit "$f"
+	done
+fi
