@@ -14,7 +14,7 @@ YACCO    = $(COMBOS:=.tab.o)
 .SUFFIXES :
 .SUFFIXES : .a .o .c .l .y
 
-drivers : driver_words driver_lisp
+drivers : driver_words driver_lisp driver_csv
 
 # for the drivers:
 .o:
