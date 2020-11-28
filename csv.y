@@ -13,20 +13,25 @@ int csverror(const void *s, const char *msg);
 int csvlex(void *lval, const void *s);
 %}
 
-%token CRLF ESCAPED NONESCAPED
+%union
+{
+	char *str;
+}
+
+%token <str> CRLF ESCAPED NONESCAPED
 
 %%
 
-file : record                 { puts("file1"); }
-	 | file CRLF record       { puts("file2"); }
+file : record                 { puts("."); }
+	 | file CRLF record       { puts("!"); }
      ;
 
-record : field             { puts("record1"); }
-	   | record ',' field  { puts("record2"); }
+record : field             { printf(" , "); }
+	   | record ',' field  { printf(" > "); }
        ;
 
-field : ESCAPED         { puts("field1"); }
-	  | NONESCAPED      { puts("field2"); }
+field : ESCAPED         { printf("'%s'", $1); }
+	  | NONESCAPED      { printf("%s", $1); }
       ;
 
 %%

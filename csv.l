@@ -4,6 +4,7 @@
 
 %{
 #include <stdio.h>
+#include <string.h>
 #include "csv.tab.h"
 
 #define YYSTYPE CSVSTYPE
@@ -13,8 +14,8 @@
 
 %%
 
-\"([^"]|[,\r\n]|\"\")*\" { return ESCAPED; }
-[^",\r\n]* { return NONESCAPED; }
+\"([^"]|[,\r\n]|\"\")*\" { yylval->str = strdup(yytext); return ESCAPED; }
+[^",\r\n]* { yylval->str = strdup(yytext); return NONESCAPED; }
 \n         { return CRLF; }
 .          { return *yytext; }
 
