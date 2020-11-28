@@ -22,13 +22,14 @@ int csvlex(void *lval, const void *s);
 
 %%
 
-file : record                 { puts("."); }
-	 | file CRLF record       { puts("!"); }
+file : row              { puts("."); }
+	 | file CRLF row    { puts("!"); }
      ;
 
-record : field             { printf(" , "); }
-	   | record ',' field  { printf(" > "); }
-       ;
+row : YYEOF             { printf("()"); }
+	| field             { printf(" , "); }
+	| row ',' field     { printf(" > "); }
+    ;
 
 field : ESCAPED         { printf("'%s'", $1); }
 	  | NONESCAPED      { printf("%s", $1); }
