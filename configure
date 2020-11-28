@@ -10,7 +10,7 @@ for fmt in words lisp csv
 do
 cat >> config.mk <<EOF
 $fmt.lex.c $fmt.lex.h : $fmt.l
-	\$(LEX) \$(LFLAGS) --header-file=$fmt.lex.h -t $fmt.l > $fmt.lex.c
+	\$(LEX) \$(LFLAGS) --header-file=$fmt.lex.h --outfile=$fmt.lex.c $fmt.l
 
 driver_$fmt : driver_$fmt.o parsers.a
 driver_$fmt.o : driver_$fmt.c $fmt.h $fmt.lex.h
