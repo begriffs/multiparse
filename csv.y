@@ -26,7 +26,7 @@ file : row              { puts("."); }
 	 | file CRLF row    { puts("!"); }
      ;
 
-row : YYEOF             { printf("()"); }
+row : /* empty */       { printf("()"); }
 	| field             { printf(" , "); }
 	| row ',' field     { printf(" > "); }
     ;
