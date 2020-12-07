@@ -14,7 +14,22 @@
 
 %%
 
-\"([^"]|[,\r\n]|\"\")*\" { yylval->str = strdup(yytext); return ESCAPED; }
+\"([^"]|[,\r\n]|\"\")*\" {
+	/* TODO: use posix regex global replace for ""->" */
+	size_t i, n = strlen(yytext);
+	char *s, *ret;
+	s = ret = calloc(n, 1);
+	if (!s) abort();
+	for (i = 1 /*skip 0="*/; i < n-1; i++)
+	{
+		*s++ = yytext[i];
+		if (yytext[i] == '"')
+			i++; /* skip second one */
+	}
+
+	yylval->str = ret;
+	return ESCAPED;
+}
 [^",\r\n]* { yylval->str = strdup(yytext); return NONESCAPED; }
 \n         { return CRLF; }
 .          { return *yytext; }
