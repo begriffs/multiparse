@@ -26,12 +26,12 @@ file : row              { puts("."); }
 	 | file CRLF row    { puts("!"); }
      ;
 
-row : /* empty */       { printf("()"); }
-	| field             { printf(" , "); }
-	| row ',' field     { printf(" > "); }
+row : field             { printf(" "); }
+	| row ',' field     { printf(" "); }
     ;
 
-field : ESCAPED         { printf("'%s'", $1); }
+field : /* blank? */    { printf("()"); }
+	  | ESCAPED         { printf("'%s'", $1); }
 	  | NONESCAPED      { printf("%s", $1); }
       ;
 
