@@ -20,10 +20,12 @@ int csvlex(void *lval, const void *s);
 
 %token <str> CRLF ESCAPED NONESCAPED
 
+/* adapted from https://tools.ietf.org/html/rfc4180 */
+
 %%
 
 file : row              { puts("."); }
-	 | file CRLF row    { puts("!"); }
+	 | file CRLF row    { puts("."); }
      ;
 
 row : field             { printf(" "); }
