@@ -35,7 +35,7 @@ row :
 ;
 
 field :
-  /* blank? */    { printf("()"); }
+  %empty          { printf("()"); }
 | ESCAPED         { printf("'%s'", $1); }
 | NONESCAPED      { printf("%s", $1); }
 ;
