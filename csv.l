@@ -14,7 +14,7 @@
 
 %%
 
-\"([^"]|[,\r\n]|\"\")*\" {
+\"([^"]|\"\")*\" {
 	/* TODO: use posix regex global replace for ""->" */
 	size_t i, n = strlen(yytext);
 	char *s, *ret;
