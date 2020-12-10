@@ -30,8 +30,13 @@ file :
 ;
 
 row :
-  field           { printf(" "); }
-| row ',' field   { printf(" "); }
+  %empty
+| fields
+;
+
+fields:
+  field              { printf(" "); }
+| fields ',' field   { printf(" "); }
 ;
 
 field :
