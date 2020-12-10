@@ -24,18 +24,21 @@ int csvlex(void *lval, const void *s);
 
 %%
 
-file : row              { puts("."); }
-	 | file CRLF row    { puts("."); }
-     ;
+file :
+  row             { puts("."); }
+| file CRLF row   { puts("."); }
+;
 
-row : field             { printf(" "); }
-	| row ',' field     { printf(" "); }
-    ;
+row :
+  field           { printf(" "); }
+| row ',' field   { printf(" "); }
+;
 
-field : /* blank? */    { printf("()"); }
-	  | ESCAPED         { printf("'%s'", $1); }
-	  | NONESCAPED      { printf("%s", $1); }
-      ;
+field :
+  /* blank? */    { printf("()"); }
+| ESCAPED         { printf("'%s'", $1); }
+| NONESCAPED      { printf("%s", $1); }
+;
 
 %%
 
