@@ -2,24 +2,29 @@
 %define api.prefix {csv}
 %define parse.error verbose
 
-%param {void *scanner}
-
-%{
+%code requires {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-int csverror(const void *s, const char *msg);
-int csvlex(void *lval, const void *s);
-
-#define INITIAL_ROW_SZ 16
 
 struct csv_row
 {
 	size_t alloced, len;
 	char *fs[]; /* C99 flexible array */
 };
-%}
+
+typedef void (*csv_row_callback)(struct csv_row *);
+}
+
+%param {void *scanner}
+%parse-param {csv_row_callback callback}
+
+%code {
+int csverror(const void *s, const csv_row_callback c, const char *msg);
+int csvlex(void *lval, const void *s);
+
+#define INITIAL_ROW_SZ 16
+}
 
 %union
 {
@@ -43,7 +48,7 @@ file :
 
 row :
   %empty
-| fields
+| fields          { callback($1); }
 ;
 
 fields:
@@ -76,8 +81,9 @@ field :
 
 %%
 
-int csverror(const void *s, const char *msg)
+int csverror(const void *s, const csv_row_callback c, const char *msg)
 {
 	(void)s;
+	(void)c;
 	return fprintf(stderr, "%s\n", msg);
 }
