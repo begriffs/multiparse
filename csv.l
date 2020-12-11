@@ -30,7 +30,7 @@
 	yylval->str = ret;
 	return ESCAPED;
 }
-[^",\r\n]* { yylval->str = strdup(yytext); return NONESCAPED; }
+[^",\r\n]+ { yylval->str = strdup(yytext); return NONESCAPED; }
 \n|\r\n    { return CRLF; }
 .          { return *yytext; }
 
