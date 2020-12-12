@@ -48,7 +48,7 @@ file :
 
 row :
   %empty
-| fields          { callback($1); }
+| fields          { if(callback) callback($1); }
 ;
 
 fields:
