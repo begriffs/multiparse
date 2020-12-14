@@ -2,10 +2,11 @@
 
 unit ()
 {
+	echo "--- $1 ---"
 	if ./driver_csv < "$1" ; then
-		>&2 echo "PASS: $1"
+		>&2 echo "PASS"
 	else
-		>&2 echo "FAIL: $1"
+		>&2 echo "FAIL"
 	fi
 }
 

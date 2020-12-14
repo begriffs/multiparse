@@ -5,7 +5,9 @@
 
 void print_n_fields(struct csv_row *r)
 {
-	printf("#fields = %zu\n", r->len);
+	printf("\t#fields = %zu\n", r->len);
+	for (size_t i = 0; i < r->len; i++)
+		printf("\t%s\n", r->fs[i]);
 }
 
 int main(void)
