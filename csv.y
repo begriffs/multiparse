@@ -53,7 +53,7 @@ row :
 
 fields:
   field {
-	struct csv_row *r = malloc(sizeof *r + INITIAL_ROW_SZ);
+	struct csv_row *r = malloc(sizeof *r + sizeof(r->fs[0])*INITIAL_ROW_SZ);
 	if (!r) abort();
 	r->alloced = INITIAL_ROW_SZ;
 	r->len   = 1;
@@ -65,7 +65,7 @@ fields:
 	if (r->len >= r->alloced)
 	{
 		r->alloced *= 2;
-		r = realloc(r, sizeof *r + r->alloced);
+		r = realloc(r, sizeof *r + sizeof(r->fs[0])*r->alloced);
 		if (!r) abort();
 	}
 	r->fs[r->len++] = $3;
