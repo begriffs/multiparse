@@ -42,8 +42,8 @@ int csvlex(void *lval, const void *s);
 %%
 
 file :
-  row             { puts("."); }
-| file CRLF row   { puts("."); }
+  row
+| file CRLF row
 ;
 
 row :
@@ -74,9 +74,9 @@ fields:
 ;
 
 field :
-  %empty          { printf("() "); }
-| ESCAPED         { printf("'%s' ", $1); }
-| NONESCAPED      { printf("%s ", $1); }
+  %empty          { $$ = ""; }
+| ESCAPED
+| NONESCAPED
 ;
 
 %%
