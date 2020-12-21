@@ -4,6 +4,7 @@
 
 %code requires {
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,7 @@ typedef void (*csv_row_callback)(struct csv_row *);
 int csverror(const void *s, const csv_row_callback c, const char *msg);
 int csvlex(void *lval, const void *s);
 void csv_row_free(struct csv_row *r);
+bool csv_row_empty(struct csv_row *r);
 
 #define INITIAL_ROW_SZ 16
 }
@@ -37,7 +39,7 @@ void csv_row_free(struct csv_row *r);
 %token CRLF
 %token <str> ESCAPED NONESCAPED
 %type <str> field
-%type <row> fields
+%type <row> row
 
 %destructor { free($$); } <str>
 %destructor { csv_row_free($$); } <row>
@@ -47,20 +49,19 @@ void csv_row_free(struct csv_row *r);
 %%
 
 file :
-  row
-| file CRLF row
-;
-
-row :
-  %empty
-| fields {
-	if(callback)
+  row {
+	if(callback && !csv_row_empty($1))
 		callback($1);
 	csv_row_free($1);
   }
+| file CRLF row {
+	if(callback && !csv_row_empty($3))
+		callback($3);
+	csv_row_free($3);
+  }
 ;
 
-fields:
+row:
   field {
 	struct csv_row *r = malloc(sizeof *r + INITIAL_ROW_SZ * sizeof r->fs[0]);
 	if (!r) abort();
@@ -69,7 +70,7 @@ fields:
 	r->fs[0] = $1;
 	$$ = r;
   }
-| fields ',' field {
+| row ',' field {
 	struct csv_row *r = $1;
 	if (r->len >= r->alloced)
 	{
@@ -96,6 +97,11 @@ void csv_row_free(struct csv_row *r)
 	for (size_t i = 0; i < r->len; i++)
 		free(r->fs[i]);
 	free(r);
+}
+
+bool csv_row_empty(struct csv_row *r)
+{
+	return r->len < 2 && r->fs[0][0] == '\0';
 }
 
 int csverror(const void *s, const csv_row_callback c, const char *msg)
