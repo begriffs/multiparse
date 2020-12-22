@@ -42,6 +42,25 @@ void csv_row_free(struct csv_row *r);
 %destructor { free($$); } <str>
 %destructor { csv_row_free($$); } <row>
 
+%printer {
+	size_t i;
+	fputc('"', yyo);
+	for (i = 0; i < 6 && $$[i]; i++)
+	{
+		if ($$[i] == '"')
+			fprintf(yyo, "\"\"");
+		else
+			fputc($$[i], yyo);
+	}
+	if ($$[i])
+		fprintf(yyo, "..."); /* was truncated */
+	fputc('"', yyo);
+} <str>
+
+%printer {
+	fprintf(yyo, "row: %zu fields", $$->len);
+} <row>
+
 /* adapted from https://tools.ietf.org/html/rfc4180 */
 
 %%

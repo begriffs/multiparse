@@ -15,6 +15,8 @@ int main(void)
 	int i;
 	yyscan_t scanner;
 
+	/* csvdebug = 1; */
+
 	if ((i = csvlex_init(&scanner)) != 0)
 		exit(i);
 
