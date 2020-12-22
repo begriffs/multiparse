@@ -68,19 +68,19 @@ bool csv_row_empty(struct csv_row *r);
 %%
 
 file :
+  consumed_row
+| file CRLF consumed_row
+;
+
+consumed_row :
   row {
 	if(callback && !csv_row_empty($1))
 		callback($1);
 	csv_row_free($1);
   }
-| file CRLF row {
-	if(callback && !csv_row_empty($3))
-		callback($3);
-	csv_row_free($3);
-  }
 ;
 
-row:
+row :
   field {
 	struct csv_row *r = malloc(sizeof *r + INITIAL_ROW_SZ * sizeof r->fs[0]);
 	if (!r) abort();
