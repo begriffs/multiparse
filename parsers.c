@@ -5,6 +5,7 @@
  */
 
 #define SCANNERS \
+	X(adif) \
 	X(words) \
 	X(lisp) \
 	X(csv)

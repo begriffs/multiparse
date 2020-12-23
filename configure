@@ -6,7 +6,7 @@ rm -f config.mk
 
 # everybody uses a lexer
 
-for fmt in words lisp csv
+for fmt in words lisp csv adif
 do
 cat >> config.mk <<EOF
 $fmt.lex.c $fmt.lex.h : $fmt.l
@@ -20,7 +20,7 @@ done
 
 # and some user a parser too
 
-for fmt in lisp csv
+for fmt in lisp csv adif
 do
 cat >> config.mk <<EOF
 $fmt.tab.c $fmt.tab.h : $fmt.y
