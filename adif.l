@@ -19,7 +19,7 @@
 %%
 
 \<[[:alpha:]]+:[[:digit:]]{1,8}\> {
-	long datalen, i;
+	long datalen, i, c;
 	struct adif_tag *t = malloc(sizeof *t);
 	if (!t) abort();
 	*t = (struct adif_tag){0};
@@ -32,16 +32,8 @@
 	t->val = malloc(datalen);
 	if (!t->val) abort();
 
-	for (i = 0; i < datalen; i++)
-	{
-		int c;
-		if ((c = input(yyscanner)) == EOF)
-		{ 
-			t->truncated = true;
-			break;
-		}
+	for (i = 0; i < datalen && (c = input(yyscanner)) != EOF; i++)
 		t->val[i] = c;
-	}
 	t->val[i] = '\0';
 	/* yylval is pointer to value in pure scanner */
 	*yylval = t;

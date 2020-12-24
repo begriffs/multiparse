@@ -13,7 +13,6 @@ struct adif_tag
 {
 	char *name;
 	char *val;
-	bool truncated;
 };
 }
 
@@ -34,9 +33,7 @@ int adiflex(void *lval, const void *s);
 } TAG
 
 %printer {
-	fprintf(yyo,
-		$$->truncated ? "<%s (truncated)>%s" : "<%s>%s",
-		$$->name, $$->val);
+	fprintf(yyo, "<%s>%s", $$->name, $$->val);
 } TAG
 
 /* adapted from https://tools.ietf.org/html/rfc4180 */
