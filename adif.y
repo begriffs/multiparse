@@ -13,6 +13,7 @@ struct adif_tag
 {
 	char *name;
 	char *val;
+	char type;
 };
 }
 
@@ -33,7 +34,7 @@ int adiflex(void *lval, const void *s);
 } TAG
 
 %printer {
-	fprintf(yyo, "<%s>%s", $$->name, $$->val);
+	fprintf(yyo, "<%s>%s (%c)", $$->name, $$->val, $$->type);
 } TAG
 
 /* adapted from https://tools.ietf.org/html/rfc4180 */

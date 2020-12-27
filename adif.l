@@ -9,35 +9,71 @@
 #define YY_EXIT_FAILURE ((void)yyscanner, EXIT_FAILURE)
 
 #include <stdbool.h>
+#include <ctype.h>
 #include <stdio.h>
 
 #define YYSTYPE ADIFSTYPE
+
+static char *read_n(yyscan_t scanner, size_t n);
+static struct adif_tag *adif_tag_create(int namelen);
 %}
 
 /* <call:5>KG0KG<band:3>80M<mode:3>SSB<qso_date:8>20200311<time_on:4>1904<eor> */
 
 %%
 
-\<[[:alpha:]]+:[[:digit:]]{1,8}\> {
-	long datalen, i, c;
-	struct adif_tag *t = malloc(sizeof *t);
-	if (!t) abort();
-	*t = (struct adif_tag){0};
+\<[[:alpha:]]+:[[:digit:]]{1,8}:[BNDTSIMGEL]\> {
+	size_t datalen;
+	struct adif_tag *t = adif_tag_create(yyleng);
 
-	/* a little overkill, but whatevs */
-	t->name = malloc(yyleng);
-	if (!t->name) abort();
 	/* format is good, safe to scanf */
-	sscanf(yytext, "<%[^:]:%ld>", t->name, &datalen);
-	t->val = malloc(datalen);
-	if (!t->val) abort();
+	sscanf(yytext, "<%[^:]:%zu:%c>", t->name, &datalen, &t->type);
+	t->type = toupper(t->type);
+	t->val = read_n(yyscanner, datalen);
 
-	for (i = 0; i < datalen && (c = input(yyscanner)) != EOF; i++)
-		t->val[i] = c;
-	t->val[i] = '\0';
+	/* yylval is pointer to value in pure scanner */
+	*yylval = t;
+	return TAG;
+}
+
+\<[[:alpha:]]+:[[:digit:]]{1,8}\> {
+	size_t datalen;
+	struct adif_tag *t = adif_tag_create(yyleng);
+
+	/* format is good, safe to scanf */
+	sscanf(yytext, "<%[^:]:%zu>", t->name, &datalen);
+
+	t->val = read_n(yyscanner, datalen);
+
 	/* yylval is pointer to value in pure scanner */
 	*yylval = t;
 	return TAG;
 }
 \<eor\> { return EOR; }
 .|\n	;
+
+%%
+
+char *read_n(yyscan_t scanner, size_t n)
+{
+	int c;
+	size_t i;
+	char *s = malloc(n + 1);
+	if (!s) abort();
+
+	for (i = 0; i < n && (c = input(scanner)) != EOF; i++)
+		s[i] = c;
+	s[i] = '\0';
+	return s;
+}
+
+struct adif_tag *adif_tag_create(int namelen)
+{
+	struct adif_tag *t = malloc(sizeof *t);
+	if (!t) abort();
+	*t = (struct adif_tag){.type = 'S'};
+
+	t->name = calloc(1, namelen);
+	if (!t->name) abort();
+	return t;
+}
