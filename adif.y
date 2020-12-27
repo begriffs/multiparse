@@ -37,8 +37,6 @@ int adiflex(void *lval, const void *s);
 	fprintf(yyo, "<%s>%s (%c)", $$->name, $$->val, $$->type);
 } TAG
 
-/* adapted from https://tools.ietf.org/html/rfc4180 */
-
 %%
 
 file :
