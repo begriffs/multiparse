@@ -49,8 +49,9 @@ static struct adif_tag *adif_tag_create(int namelen);
 	*yylval = t;
 	return TAG;
 }
-\<eor\> { return EOR; }
-.|\n	;
+(?i:\<eor\>) { return EOR; }
+[[:space:]] ;
+. { return yytext[0]; };
 
 %%
 
