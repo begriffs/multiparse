@@ -25,7 +25,7 @@ int adiferror(const void *s, const char *msg);
 int adiflex(void *lval, const void *s);
 }
 
-%token EOR TAG
+%token EOH EOR TAG HEADER_COMMENT
 
 %destructor {
 	free($$->name);
@@ -42,6 +42,16 @@ int adiflex(void *lval, const void *s);
 %%
 
 file :
+  HEADER_COMMENT tags EOH records
+| records
+;
+
+records :
+  record
+| records record
+;
+
+record :
   tags EOR
 ;
 

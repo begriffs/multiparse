@@ -22,7 +22,11 @@ static struct adif_tag *adif_tag_create(int namelen);
 
 %%
 
-\<[[:alpha:]]+:[[:digit:]]{1,8}:[BNDTSIMGEL]\> {
+[^<\n].*$ {
+	return HEADER_COMMENT;
+}
+
+\<[[:alnum:]_]+:[[:digit:]]{1,8}:[BNDTSIMGEL]\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
 
@@ -36,7 +40,7 @@ static struct adif_tag *adif_tag_create(int namelen);
 	return TAG;
 }
 
-\<[[:alpha:]]+:[[:digit:]]{1,8}\> {
+\<[[:alnum:]_]+:[[:digit:]]{1,8}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
 
@@ -49,9 +53,15 @@ static struct adif_tag *adif_tag_create(int namelen);
 	*yylval = t;
 	return TAG;
 }
+
 (?i:\<eor\>) { return EOR; }
-[[:space:]] ;
-. { return yytext[0]; };
+(?i:\<eoh\>) { return EOH; }
+
+[\n[:space:]] ;
+. {
+	fprintf(stderr, "Weird one: '%c'\n", yytext[0]);
+	return yytext[0];
+}
 
 %%
 
