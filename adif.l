@@ -18,15 +18,18 @@ static char *read_n(yyscan_t scanner, size_t n);
 static struct adif_tag *adif_tag_create(int namelen);
 %}
 
-/* <call:5>KG0KG<band:3>80M<mode:3>SSB<qso_date:8>20200311<time_on:4>1904<eor> */
+TAGNAME_RE [[:alnum:]_]+
+TAGLEN_RE  [[:digit:]]{1,8}
+TAGTYPE_RE [BNDTSIMGEL]
 
+/* <call:5>KG0KG<band:3>80M<mode:3>SSB<qso_date:8>20200311<time_on:4>1904<eor> */
 %%
 
 [^<\n].*$ {
 	return HEADER_COMMENT;
 }
 
-\<[[:alnum:]_]+:[[:digit:]]{1,8}:[BNDTSIMGEL]\> {
+\<{TAGNAME_RE}:{TAGLEN_RE}:{TAGTYPE_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
 
@@ -40,7 +43,7 @@ static struct adif_tag *adif_tag_create(int namelen);
 	return TAG;
 }
 
-\<[[:alnum:]_]+:[[:digit:]]{1,8}\> {
+\<{TAGNAME_RE}:{TAGLEN_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
 
