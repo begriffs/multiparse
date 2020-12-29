@@ -2,35 +2,29 @@
 %define api.prefix {lisp}
 %define parse.error verbose
 
-%parse-param {struct sexpr **result}
-%param {void *scanner}
+%code top {
+	/* XOPEN for strdup */
+	#define _XOPEN_SOURCE 600
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+}
 
-%{
-/* XOPEN for strdup */
-#define _XOPEN_SOURCE 600
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+%code requires {
+	enum sexpr_type {
+		SEXPR_ID, SEXPR_NUM, SEXPR_PAIR
+	};
 
-int lisperror(void *foo, char const *msg, const void *s);
-int lisplex(void *lval, const void *s);
-%}
-
-%code provides {
-enum sexpr_type {
-	SEXPR_ID, SEXPR_NUM, SEXPR_PAIR
-};
-
-struct sexpr
-{
-	enum sexpr_type type;
-	union
+	struct sexpr
 	{
-		int   num;
-		char *id;
-	} value;
-	struct sexpr *left, *right;
-};
+		enum sexpr_type type;
+		union
+		{
+			int   num;
+			char *id;
+		} value;
+		struct sexpr *left, *right;
+	};
 }
 
 %union
@@ -38,6 +32,14 @@ struct sexpr
 	int num;
 	char *str;
 	struct sexpr *node;
+}
+
+%parse-param {struct sexpr **result}
+%param {void *scanner}
+
+%code {
+	int lisperror(void *foo, char const *msg, const void *s);
+	int lisplex(void *lval, const void *s);
 }
 
 %token <str> ID

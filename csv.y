@@ -2,38 +2,44 @@
 %define api.prefix {csv}
 %define parse.error verbose
 
-%code requires {
-#include <assert.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-struct csv_row
-{
-	size_t alloced, len;
-	char *fs[]; /* C99 flexible array */
-};
-
-typedef void (*csv_row_callback)(struct csv_row *);
+%code top {
+	#include <assert.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
 }
 
-%param {void *scanner}
-%parse-param {csv_row_callback callback}
+%code requires {
+	struct csv_row
+	{
+		size_t alloced, len;
+		char *fs[]; /* C99 flexible array */
+	};
 
-%code {
-int csverror(const void *s, const csv_row_callback c, const char *msg);
-int csvlex(void *lval, const void *s);
-void csv_row_free(struct csv_row *r);
-bool csv_row_empty(struct csv_row *r);
-
-#define INITIAL_ROW_SZ 16
+	typedef void (*csv_row_callback)(struct csv_row *);
 }
 
 %union
 {
 	char *str;
 	struct csv_row *row;
+}
+
+%param {void *scanner}
+%parse-param {csv_row_callback callback}
+
+%code provides {
+	#include <stdbool.h>
+
+	void csv_row_free(struct csv_row *r);
+	bool csv_row_empty(struct csv_row *r);
+}
+
+%code {
+	int csvlex(void *lval, const void *s);
+	int csverror(const void *s, const csv_row_callback c, const char *msg);
+
+	#define INITIAL_ROW_SZ 16
 }
 
 %token CRLF
