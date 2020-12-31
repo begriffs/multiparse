@@ -32,28 +32,27 @@ TAGTYPE_RE [BNDTSIMGEL]
 \<{TAGNAME_RE}:{TAGLEN_RE}:{TAGTYPE_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
+	*yylval = t;
+	if (!t)
+		return TAG;
 
 	/* format is good, safe to scanf */
 	sscanf(yytext, "<%[^:]:%zu:%c>", t->name, &datalen, &t->type);
 	t->type = toupper(t->type);
 	t->val = read_n(yyscanner, datalen);
-
-	/* yylval is pointer to value in pure scanner */
-	*yylval = t;
 	return TAG;
 }
 
 \<{TAGNAME_RE}:{TAGLEN_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
+	*yylval = t;
+	if (!t)
+		return TAG;
 
 	/* format is good, safe to scanf */
 	sscanf(yytext, "<%[^:]:%zu>", t->name, &datalen);
-
 	t->val = read_n(yyscanner, datalen);
-
-	/* yylval is pointer to value in pure scanner */
-	*yylval = t;
 	return TAG;
 }
 
@@ -73,7 +72,7 @@ char *read_n(yyscan_t scanner, size_t n)
 	int c;
 	size_t i;
 	char *s = malloc(n + 1);
-	if (!s) abort();
+	if (!s) return s;
 
 	for (i = 0; i < n && (c = input(scanner)) != EOF; i++)
 		s[i] = c;
@@ -84,10 +83,13 @@ char *read_n(yyscan_t scanner, size_t n)
 struct adif_tag *adif_tag_create(int namelen)
 {
 	struct adif_tag *t = malloc(sizeof *t);
-	if (!t) abort();
+	if (!t) return t;
 	*t = (struct adif_tag){.type = 'S'};
 
 	t->name = calloc(1, namelen);
-	if (!t->name) abort();
+	if (!t->name) {
+		free(t);
+		return NULL;
+	}
 	return t;
 }

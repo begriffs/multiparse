@@ -7,6 +7,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include "parsers.h"
 }
 
 %code requires {
@@ -88,8 +89,9 @@ consumed_row :
 
 row :
   field {
+	if (!$1) YYNOMEM;
 	struct csv_row *r = malloc(sizeof *r + INITIAL_ROW_SZ * sizeof r->fs[0]);
-	if (!r) abort();
+	if (!r) YYNOMEM;
 	r->alloced = INITIAL_ROW_SZ;
 	r->len   = 1;
 	r->fs[0] = $1;
@@ -97,11 +99,12 @@ row :
   }
 | row ',' field {
 	struct csv_row *r = $1;
+	if (!$3) YYNOMEM;
 	if (r->len >= r->alloced)
 	{
 		r->alloced *= 2;
 		r = realloc(r, sizeof *r + r->alloced * sizeof r->fs[0]);
-		if (!r) abort();
+		if (!r) YYNOMEM;
 	}
 	r->fs[r->len++] = $3;
 	$$ = r;

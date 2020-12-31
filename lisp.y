@@ -8,6 +8,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include "parsers.h"
 }
 
 %code requires {
@@ -62,7 +63,7 @@ list: '(' members ')' {
 	}
 	| '('')' {
 		struct sexpr *s = malloc(sizeof *s);
-		if (!s) abort();
+		if (!s) YYNOMEM;
 		/* empty pair */
 		*s = (struct sexpr){.type = SEXPR_PAIR};
 		$$ = s;
@@ -71,8 +72,11 @@ list: '(' members ')' {
 
 members: sexpr {
 		struct sexpr *s = malloc(sizeof *s),
-		             *nil = malloc(sizeof *nil);;
-		if (!s || !nil) abort();
+		             *nil = malloc(sizeof *nil);
+		if (!s || !nil) {
+			free(s), free(nil);
+			YYNOMEM;
+		}
 		*nil = (struct sexpr){.type = SEXPR_PAIR};
 		*s = (struct sexpr){
 			.type = SEXPR_PAIR,
@@ -83,7 +87,7 @@ members: sexpr {
 	}
 	| sexpr members {
 		struct sexpr *s = malloc(sizeof *s);
-		if (!s) abort();
+		if (!s) YYNOMEM;
 		*s = (struct sexpr){
 			.type = SEXPR_PAIR,
 			.left = $1,
@@ -95,7 +99,7 @@ members: sexpr {
 
 pair: '(' sexpr '.' sexpr ')' {
 	struct sexpr *s = malloc(sizeof *s);
-	if (!s) abort();
+	if (!s) YYNOMEM;
 	*s = (struct sexpr){
 		.type = SEXPR_PAIR,
 		.left = $2,
@@ -105,17 +109,23 @@ pair: '(' sexpr '.' sexpr ')' {
 }
 
 atom: ID {
+		if (!$1) YYNOMEM;
 		struct sexpr *s = malloc(sizeof *s);
-		if (!s) abort();
+		if (!s) YYNOMEM;
 		*s = (struct sexpr){
 			.type = SEXPR_ID,
 			.value.id = strdup($1)
 		};
+		if (!s->value.id)
+		{
+			free(s);
+			YYNOMEM;
+		}
 		$$ = s;
 	}
     | NUM {
 		struct sexpr *s = malloc(sizeof *s);
-		if (!s) abort();
+		if (!s) YYNOMEM;
 		*s = (struct sexpr){
 			.type = SEXPR_NUM,
 			.value.num = $1

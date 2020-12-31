@@ -20,8 +20,12 @@
 	/* TODO: use posix regex global replace for ""->" */
 	size_t i, n = strlen(yytext);
 	char *s, *ret;
+	yylval->str = NULL;
+
 	s = ret = calloc(n, 1);
-	if (!s) abort();
+	if (!s)
+		return ESCAPED;
+
 	for (i = 1 /*skip 0="*/; i < n-1; i++)
 	{
 		*s++ = yytext[i];

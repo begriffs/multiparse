@@ -23,7 +23,7 @@ done
 for fmt in lisp csv adif
 do
 cat >> config.mk <<EOF
-$fmt.tab.c $fmt.tab.h : $fmt.y
+$fmt.tab.c $fmt.tab.h : $fmt.y parsers.h
 	\$(YACC) \$(YFLAGS) -d -b $fmt $fmt.y
 driver_$fmt.o : $fmt.tab.h
 
