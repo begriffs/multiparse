@@ -55,7 +55,8 @@ y : DAH DIT DAH DAH;
 z : DAH DAH DIT DIT;
 
 word :
-  a i d s  { $$ = "aids"; } %merge <either>
+  error { $$ = "[unknown]"; }
+| a i d s  { $$ = "aids"; } %merge <either>
 | a m  { $$ = "am"; } %merge <either>
 | a f r i c a n  { $$ = "african"; } %merge <either>
 | a m e r i c a n  { $$ = "american"; } %merge <either>
