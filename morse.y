@@ -60,6 +60,7 @@ z : DAH DAH DIT DIT;
 
 word :
   error { $$ = strdup("[unknown]"); }
+| %empty { $$ = calloc(1,1); }
 | a i d s  { $$ = strdup("aids"); } %merge <either>
 | a m  { $$ = strdup("am"); } %merge <either>
 | a f r i c a n  { $$ = strdup("african"); } %merge <either>

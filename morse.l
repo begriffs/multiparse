@@ -11,13 +11,13 @@
 #define YYSTYPE MORSESTYPE
 %}
 
-LF_RE   (\r\n)|(\r)|(\n)|(\x0c) 
-
 %%
 
 "." { return DIT; }
 "-" { return DAH; }
 
-[ \t]+|{LF_RE} { return SPACE; }
+[[:space:]\n\r\x0c]+ { return SPACE; }
+
+. { return *yytext; }
 
 %%
