@@ -77,14 +77,14 @@ tags :
 
 tag :
   key
-| key '=' escaped_value
+| key '=' ESCAPED_VALUE
 ;
 
 key :
-  '+' vendor '/' key_name
-| '+'            key_name
-|     vendor '/' key_name
-|                key_name
+  '+' vendor '/' KEY_NAME
+| '+'            KEY_NAME
+|     vendor '/' KEY_NAME
+|                KEY_NAME
 ;
 
 %%
