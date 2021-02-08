@@ -64,10 +64,10 @@ https://ircv3.net/specs/extensions/message-tags
 */
 
 message :
-  '@' tags ' ' ':' prefix ' ' command params CRLF
-| '@' tags ' '                command params CRLF
-|              ':' prefix ' ' command params CRLF
-|                             command params CRLF
+  '@' tags SPACE ':' prefix SPACE command params CRLF
+| '@' tags SPACE                  command params CRLF
+|                ':' prefix SPACE command params CRLF
+|                                 command params CRLF
 ;
 
 tags :
