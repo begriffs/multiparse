@@ -9,7 +9,8 @@
 	X(adif) \
 	X(words) \
 	X(lisp) \
-	X(csv)
+	X(csv) \
+	X(irc)
 
 /* Each scanner uses its own prefix, and we'll create the same functions
  * for each, but with different names.

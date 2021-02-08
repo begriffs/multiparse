@@ -7,7 +7,7 @@ YFLAGS += -Dparse.trace -Wno-yacc -Wempty-rule
 LEX = flex
 YACC = bison
 
-COMBOS = adif csv lisp morse
+COMBOS = adif csv lisp morse irc
 LEXO     = $(COMBOS:=.lex.o) words.o
 YACCO    = $(COMBOS:=.tab.o)
 
@@ -15,7 +15,7 @@ YACCO    = $(COMBOS:=.tab.o)
 .SUFFIXES : .a .o .c .l .y
 
 drivers : driver_words driver_lisp driver_csv driver_adif \
-	driver_morse
+	driver_morse driver_irc
 
 # for the drivers:
 .o:
