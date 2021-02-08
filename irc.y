@@ -12,41 +12,16 @@
 }
 
 %code requires {
-	enum sexpr_type {
-		SEXPR_ID, SEXPR_NUM, SEXPR_PAIR
-	};
-
-	struct sexpr
-	{
-		enum sexpr_type type;
-		union
-		{
-			int   num;
-			char *id;
-		} value;
-		struct sexpr *left, *right;
-	};
 }
 
-%union
-{
-	int num;
-	char *str;
-	struct sexpr *node;
-}
-
-%parse-param {struct sexpr **result}
 %param {void *scanner}
 
 %code {
-	int ircerror(void *foo, char const *msg, const void *s);
+	int ircerror(void *foo, char const *msg);
 	int irclex(void *lval, const void *s);
 }
 
-%token <str> ID
-%token <num> NUM
-
-%type <node> start sexpr pair list members atom
+%token COMMAND CRLF SPACE KEY_NAME ESCAPED_VALUE MIDDLE TRAILING NICK USER HOST
 
 %%
 
@@ -61,13 +36,46 @@ https://ircv3.net/specs/extensions/message-tags
 <key_name>      ::= <non-empty sequence of ascii letters, digits, hyphens ('-')>
 <escaped_value> ::= <sequence of zero or more utf8 characters except NUL, CR, LF, semicolon (`;`) and SPACE>
 <vendor>        ::= <host>
+
+https://tools.ietf.org/html/rfc1459#section-2.3.1
+
+<message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
+<prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
+<command>  ::= <letter> { <letter> } | <number> <number> <number>
+<SPACE>    ::= ' ' { ' ' }
+<params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
+
+<middle>   ::= <Any *non-empty* sequence of octets not including SPACE
+               or NUL or CR or LF, the first of which may not be ':'>
+<trailing> ::= <Any, possibly *empty*, sequence of octets not including
+                 NUL or CR or LF>
+
+<crlf>     ::= CR LF
+
+<target>     ::= <to> [ "," <target> ]
+<to>         ::= <channel> | <user> '@' <servername> | <nick> | <mask>
+<channel>    ::= ('#' | '&') <chstring>
+<servername> ::= <host>
+<host>       ::= see RFC 952 [DNS:4] for details on allowed hostnames
+<nick>       ::= <letter> { <letter> | <number> | <special> }
+<mask>       ::= ('#' | '$') <chstring>
+<chstring>   ::= <any 8bit code except SPACE, BELL, NUL, CR, LF and
+                  comma (',')>
+
+<user>       ::= <nonwhite> { <nonwhite> }
+<letter>     ::= 'a' ... 'z' | 'A' ... 'Z'
+<number>     ::= '0' ... '9'
+<special>    ::= '-' | '[' | ']' | '\' | '`' | '^' | '{' | '}'
+
+<nonwhite>   ::= <any 8bit code except SPACE (0x20), NUL (0x0), CR
+                  (0xd), and LF (0xa)>
 */
 
 message :
-  '@' tags SPACE ':' prefix SPACE command params CRLF
-| '@' tags SPACE                  command params CRLF
-|                ':' prefix SPACE command params CRLF
-|                                 command params CRLF
+  '@' tags SPACE ':' prefix SPACE COMMAND params CRLF
+| '@' tags SPACE                  COMMAND params CRLF
+|                ':' prefix SPACE COMMAND params CRLF
+|                                 COMMAND params CRLF
 ;
 
 tags :
@@ -81,17 +89,29 @@ tag :
 ;
 
 key :
-  '+' vendor '/' KEY_NAME
-| '+'            KEY_NAME
-|     vendor '/' KEY_NAME
-|                KEY_NAME
+  '+' HOST '/' KEY_NAME
+| '+'          KEY_NAME
+|     HOST '/' KEY_NAME
+|              KEY_NAME
+;
+
+params :
+  SPACE ':' TRAILING
+| MIDDLE params
+;
+
+prefix :
+  HOST
+| NICK '!' USER '@' HOST
+| NICK '!' USER
+| NICK          '@' HOST
+| NICK
 ;
 
 %%
 
-int ircerror(void *yylval, char const *msg, const void *s)
+int ircerror(void *yylval, char const *msg)
 {
 	(void)yylval;
-	(void)s;
 	return fprintf(stderr, "%s\n", msg);
 }

@@ -20,20 +20,24 @@
 int ircerror(const char *msg);
 %}
 
+trailing [^[:space:]\r\n]*
+
+%x CMD
+
 %%
 
-[[:alpha:]][[:alnum:]]*    {
-	yylval->str = strdup(yytext);
-	return ID;
-}
-[-+]?[[:digit:]]+          {
-	long n = strtol(yytext, NULL, 10);
+\n|\r\n        { return CRLF; }
 
-	if (n < INT_MIN || n > INT_MAX)
-		ircerror("Number out of range");
-	yylval->num = (int)n;
-	return NUM;
+[[:space:]]+   { return SPACE; }
+[[:alpha:]]+|[[:digit:]]{3} {
+	BEGIN CMD;
+	return COMMAND;
 }
+<CMD>[^:[:space:]\r\n]{trailing} { return MIDDLE; }
+<CMD>{trailing}                  { BEGIN 0; return TRAILING; }
 
-[[:space:]]                ;
-.                          { return *yytext; }
+[[:alpha:]][[:alnum:]]*             { return USER; }
+[[:alpha:]][[:alnum:]\-\[\]\\`^{}]* { return NICK; }
+[[:alnum:]][[:alnum:]\.\-]*         { return HOST; }
+
+.              { return *yytext; }
