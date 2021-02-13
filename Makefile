@@ -19,7 +19,7 @@ drivers : driver_words driver_lisp driver_csv driver_adif \
 
 # for the drivers:
 .o:
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< parsers.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< parsers.a $(LDLIBS)
 
 race_test_csv : race_test_csv.c parsers.a csv.h
 	clang $(CFLAGS) -fsanitize=thread $(LDFLAGS) -o $@ \

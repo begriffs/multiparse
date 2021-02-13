@@ -4,6 +4,16 @@
 
 rm -f config.mk
 
+# some basic container types
+
+pkg-config --print-errors libcalg-1.0
+cat >> config.mk <<-EOF
+	CFLAGS += $(pkg-config --cflags libcalg-1.0)
+	LDFLAGS += $(pkg-config --libs-only-L libcalg-1.0)
+	LDLIBS += $(pkg-config --libs-only-l libcalg-1.0)
+
+EOF
+
 # everybody uses a lexer
 
 for fmt in words lisp csv adif morse irc
