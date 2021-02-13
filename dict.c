@@ -9,16 +9,9 @@
 
 struct dict_entry
 {
-	char *key;
+	const char *key;
 	char *val;
 };
-
-static void _free_dict_entry(struct dict_entry *e)
-{
-	free(e->key);
-	free(e->val);
-	free(e);
-}
 
 static int
 _key_cmp(const void *a, const void* b)
@@ -44,29 +37,37 @@ char *dict_get(void **d, const char *key)
 
 bool dict_set(void **d, const char *key, const char *val)
 {
-	struct dict_entry *e, **found;
+	struct dict_entry *probe, **found;
 
-	if (!(e = malloc(sizeof *e)))
+	if (!(probe = malloc(sizeof *probe)))
 		return false;
-	*e = (struct dict_entry){strdup(key), strdup(val)};
-	if (!e->key || !e->val)
-	{
-		_free_dict_entry(e);
+	*probe = (struct dict_entry){.key=key};
+	if (!(found = tsearch(probe, d, _key_cmp)))
 		return false;
-	}
-	if (!(found = tsearch(e, d, _key_cmp)))
-	{
-		_free_dict_entry(e);
-		return false;
-	}
 
-	if (*found != e) /* already existed */
+	if (*found == probe) /* new entry */
 	{
-		char *old = (*found)->val;
-		(*found)->val = e->val;
-		free(old);
-		free(e->key);
-		free(e);
+		char *newkey = strdup(key), *newval = strdup(val);
+		if (!newkey || !newval)
+		{
+			tdelete(probe, d, _always_equal);
+			free(probe);
+			return false;
+		}
+		/* probe used arg pointers; assign copies */
+		**found = (struct dict_entry){.key=newkey, .val=newval};
+	}
+	else  /* already existed */
+	{
+		char *newval = strdup(val);
+		if (!newval)
+		{
+			free(probe);
+			return false;
+		}
+		free((*found)->val);
+		(*found)->val = newval;
+		free(probe);
 	}
 	return true;
 }
@@ -77,6 +78,8 @@ void dict_free(void **d)
 	{
 		struct dict_entry *item = *(struct dict_entry **)*d;
 		tdelete(item, d, _always_equal);
-		_free_dict_entry(item);
+		free((char*)item->key);
+		free(item->val);
+		free(item);
 	}
 }
