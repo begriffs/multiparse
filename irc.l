@@ -24,24 +24,29 @@ trailing [^[:space:]\r\n]*
 host [[:alnum:]][[:alnum:]\.\-]*
 keyname [[:alnum:]\-]+
 
-%x CMD
+%x CMD TAGS PREFIX
 
 %%
 
 \n|\r\n        { return CRLF; }
 
-[[:space:]]+   { return SPACE; }
+[[:space:]]+            { return SPACE; }
+<PREFIX>[[:space:]]+   { BEGIN CMD; return SPACE; }
+
 [[:alpha:]]+|[[:digit:]]{3} {
-	BEGIN CMD;
+	yylval->str = yytext;
 	return COMMAND;
 }
-<CMD>[^:[:space:]\r\n]{trailing} { return MIDDLE; }
-<CMD>{trailing}                  { BEGIN 0; return TRAILING; }
+<CMD>[^:[:space:]\r\n]{trailing} { yylval->str = yytext; return MIDDLE; }
+<CMD>{trailing}                  { BEGIN 0; yylval->str = yytext; return TRAILING; }
 
-[[:alpha:]][[:alnum:]]*             { return USER; }
-[[:alpha:]][[:alnum:]\-\[\]\\`^{}]* { return NICK; }
-{host}                              { return HOST; }
+<PREFIX>[[:alpha:]][[:alnum:]]*             { yylval->str = yytext; return USER; }
+<PREFIX>[[:alpha:]][[:alnum:]\-\[\]\\`^{}]* { yylval->str = yytext; return NICK; }
+<PREFIX>{host}                              { yylval->str = yytext; return HOST; }
 
-\+?({host}\/)?{keyname}  { return KEY; }
+<TAGS>\+?({host}\/)?{keyname}  { yylval->str = yytext; return KEY; }
+
+@ { BEGIN TAGS; return *yytext; }
+: { BEGIN PREFIX; return *yytext; }
 
 . { return *yytext; }
