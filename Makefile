@@ -1,6 +1,6 @@
 .POSIX:
 
-CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -D_POSIX_C_SOURCE=200112L
+CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -Wshadow -D_POSIX_C_SOURCE=200112L
 YFLAGS += -Dparse.trace -Wno-yacc -Wempty-rule
 
 # yes, sorry, need extensions beyond POSIX lex/yacc
