@@ -12,11 +12,13 @@
 	#include <string.h>
 
 	#include "parsers.h"
+	#include <libcalg/compare-string.h>
+	#include <libcalg/hash-string.h>
 }
 
 %code requires {
 	#include <libcalg/slist.h>
-	#include <libcalg/trie.h>
+	#include <libcalg/hash-table.h>
 
 	struct prefix
 	{
@@ -27,7 +29,7 @@
 
 	struct irc_message
 	{
-		Trie *tags;
+		HashTable *tags;
 		struct prefix *prefix;
 		char *command;
 		SListEntry *params;
@@ -37,8 +39,8 @@
 %union
 {
 	char *str;
-	Trie *map;
-	char **pair;
+	HashTable *map;
+	HashTablePair *pair;
 	SListEntry *list;
 	struct irc_message *msg;
 	struct prefix *prefix;
@@ -102,56 +104,62 @@ message :
 
 tags :
   tag {
-	Trie *t = trie_new();
+	HashTable *t = hash_table_new(string_hash, string_equal);
 	if (!t) YYNOMEM;
-	if (!trie_insert(t, $1[0], $1[1]))
+	if (!hash_table_insert(t, $1->key, $1->value))
 	{
-		free($1[0]);
-		free($1[1]);
+		free($1->key);
+		free($1->value);
 		free($1);
-		trie_free(t);
+		hash_table_free(t);
 		YYNOMEM;
 	}
-	free($1[0]);
+	free($1->key);
+	/* preserve $1->value though */
+	free($1);
 	$$ = t;
   }
 | tags ';' tag {
-	if (!trie_insert($1, $3[0], $3[1]))
+	if (!hash_table_insert($1, $3->key, $3->value))
 	{
-		free($3[0]);
-		free($3[1]);
+		free($3->key);
+		free($3->value);
 		free($3);
-		trie_free($1);
+		hash_table_free($1);
 		YYNOMEM;
 	}
-	free($3[0]);
+	free($3->key);
+	/* preserve $3->value though */
+	free($3);
 	$$ = $1;
   }
 ;
 
 tag :
   KEY {
-	char **p = malloc(2 * sizeof(*p));
+	HashTablePair *p = malloc(sizeof *p);
 	if (!p) YYNOMEM;
-	p[0] = strdup($1);
-	p[1] = calloc(1,1);
-	if (!p[0] || !p[1])
+	p->key = strdup($1);
+	p->value = calloc(1,1);
+	if (!p->key || !p->value)
 	{
-		free(p[0]);
-		free(p[1]);
+		free(p->key);
+		free(p->value);
+		free(p);
 		YYNOMEM;
 	}
 	$$ = p;
   }
 | KEY '=' ESCAPED_VALUE {
-	char **p = malloc(2 * sizeof(*p));
+	HashTablePair *p = malloc(sizeof *p);
 	if (!p) YYNOMEM;
-	p[0] = strdup($1);
-	p[1] = strdup($3);
-	if (!p[0] || !p[1])
+	p->key = strdup($1);
+	p->value = strdup($3);
+	if (!p->key || !p->value)
 	{
-		free(p[0]);
-		free(p[1]);
+		free(p->key);
+		free(p->value);
+		free(p);
 		YYNOMEM;
 	}
 	$$ = p;
