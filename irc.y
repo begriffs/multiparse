@@ -51,18 +51,16 @@
 	int irclex(void *lval, const void *s);
 
 	void slist_free_data(SListEntry *l);
-
-	char *concat(size_t n, ...);
 }
 
-%token <str> COMMAND CRLF SPACE KEY_NAME ESCAPED_VALUE MIDDLE TRAILING NICK USER HOST
+%token <str> COMMAND CRLF SPACE ESCAPED_VALUE MIDDLE TRAILING
+             HOST NICK USER KEY
 
 %type <msg> message
 %type <map> tags
 %type <pair> tag
 %type <list> params
 %type <prefix> prefix
-%type <str> key
 
 %%
 
@@ -131,7 +129,7 @@ tags :
 ;
 
 tag :
-  key {
+  KEY {
 	char **p = malloc(2 * sizeof(*p));
 	if (!p) YYNOMEM;
 	p[0] = strdup($1);
@@ -144,7 +142,7 @@ tag :
 	}
 	$$ = p;
   }
-| key '=' ESCAPED_VALUE {
+| KEY '=' ESCAPED_VALUE {
 	char **p = malloc(2 * sizeof(*p));
 	if (!p) YYNOMEM;
 	p[0] = strdup($1);
@@ -156,29 +154,6 @@ tag :
 		YYNOMEM;
 	}
 	$$ = p;
-  }
-;
-
-key :
-  '+' HOST '/' KEY_NAME {
-	char *s = concat(4, "+", $2, "/", $4);
-	if (!s) YYNOMEM;
-	$$ = s;
-  }
-| '+'          KEY_NAME {
-	char *s = concat(2, "+", $2);
-	if (!s) YYNOMEM;
-	$$ = s;
-  }
-|     HOST '/' KEY_NAME {
-	char *s = concat(3, $1, "/", $3);
-	if (!s) YYNOMEM;
-	$$ = s;
-  }
-|              KEY_NAME {
-	char *s = strdup($1);
-	if (!s) YYNOMEM;
-	$$ = s;
   }
 ;
 
@@ -257,34 +232,6 @@ void slist_free_data(SListEntry *l)
 	slist_iterate(&l, &i);
 	while ((p = slist_iter_next(&i)) != NULL)
 		free(p);
-}
-
-char *concat(size_t n, ...)
-{
-	va_list ap;
-	size_t retlen = 0;
-	char *ret = calloc(1,1);
-	if (!ret)
-		return NULL;
-
-	va_start(ap, n);
-	while (n-- > 0)
-	{
-		char *s = va_arg(ap, char*);
-		size_t slen = strlen(s);
-		char *bigger = realloc(ret, retlen+slen+1);
-		if (!bigger)
-		{
-			free(ret);
-			return NULL;
-		}
-		else
-			ret = bigger;
-		strcpy(ret+retlen, s);
-		retlen += slen;
-	}
-	va_end(ap);
-	return ret;
 }
 
 /*

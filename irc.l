@@ -21,6 +21,8 @@ int ircerror(const char *msg);
 %}
 
 trailing [^[:space:]\r\n]*
+host [[:alnum:]][[:alnum:]\.\-]*
+keyname [[:alnum:]\-]+
 
 %x CMD
 
@@ -38,6 +40,8 @@ trailing [^[:space:]\r\n]*
 
 [[:alpha:]][[:alnum:]]*             { return USER; }
 [[:alpha:]][[:alnum:]\-\[\]\\`^{}]* { return NICK; }
-[[:alnum:]][[:alnum:]\.\-]*         { return HOST; }
+{host}                              { return HOST; }
 
-.              { return *yytext; }
+\+?({host}\/)?{keyname}  { return KEY; }
+
+. { return *yytext; }
