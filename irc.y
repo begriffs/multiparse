@@ -46,10 +46,11 @@
 	struct prefix *prefix;
 }
 
+%parse-param {struct irc_message **result}
 %param {void *scanner}
 
 %code {
-	int ircerror(void *foo, char const *msg);
+	int ircerror(void *foo, char const *msg, const void *arg);
 	int irclex(void *lval, const void *s);
 
 	void slist_free_data(SListEntry *l);
@@ -66,6 +67,9 @@
 %type <prefix> prefix
 
 %%
+
+final : message { *result = $1; return 0; }
+	  ;
 
 message :
   '@' tags SPACE ':' prefix SPACE COMMAND params CRLF {
@@ -228,9 +232,10 @@ prefix :
 
 %%
 
-int ircerror(void *yylval, char const *msg)
+int ircerror(void *yylval, char const *msg, const void *arg)
 {
 	(void)yylval;
+	(void)arg;
 	return fprintf(stderr, "%s\n", msg);
 }
 
