@@ -53,7 +53,8 @@
 	void slist_free_data(SListEntry *l);
 }
 
-%token <str> COMMAND CRLF SPACE ESCAPED_VALUE MIDDLE TRAILING
+%token       SPACE CRLF
+%token <str> COMMAND ESCAPED_VALUE MIDDLE TRAILING
              HOST NICK USER KEY
 
 %type <msg> message
@@ -171,7 +172,7 @@ params :
 	$$ = l;
   }
 | SPACE MIDDLE params {
-	char *p = strdup($1);
+	char *p = strdup($2);
 	SListEntry *l = $3, *before = slist_prepend(&l, p);
 	if (!p || !before)
 	{
