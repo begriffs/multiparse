@@ -20,84 +20,67 @@
 int ircerror(const char *msg);
 %}
 
-trailing [^[:space:]\r\n]*
+space [[:space:]]+
+host [[:alnum:]][[:alnum:]\.\-]*
 nick [[:alpha:]][[:alnum:]\-\[\]\\`^{}]*
 user [[:alpha:]][[:alnum:]]*
-host [[:alnum:]][[:alnum:]\.\-]*
 keyname [[:alnum:]\-]+
+keyval [^[:space:];\r\n]*
+command [[:alpha:]]+|[[:digit:]]{3}
+trailing [^[:space:]\r\n]*
 
-%x CMD TAGS PREFIX
+%x PARAMS TAGS PREFIX
 
 %%
 
-\n|\r\n        { return CRLF; }
+@ { BEGIN TAGS; return *yytext; }
 
-[[:space:]]+            { return SPACE; }
-<PREFIX>[[:space:]]+   { BEGIN CMD; return SPACE; }
-
-[[:alpha:]]+|[[:digit:]]{3} {
+<TAGS>\+?({host}\/)?{keyname}  {
 	yylval->str = yytext;
+	return KEY;
+}
+<TAGS>{keyval} {
+	yylval->str = yytext;
+	return ESCAPED_VALUE;
+}
+<TAGS>{space} {
+	BEGIN INITIAL;
+	return SPACE;
+}
+
+
+
+: {
+	BEGIN PREFIX;
+	return *yytext;
+}
+
+<PREFIX>{host}|{nick}(!{user})?(@{host})? {
+	yylval->str = yytext;
+	return PREFIX;
+}
+<PREFIX>{space} { BEGIN INITIAL; return SPACE; }
+
+
+
+{command} {
+	yylval->str = yytext;
+	BEGIN PARAMS;
 	return COMMAND;
 }
-<CMD>[^:[:space:]\r\n]{trailing} { yylval->str = yytext; return MIDDLE; }
-<CMD>{trailing}                  { BEGIN 0; yylval->str = yytext; return TRAILING; }
 
-<PREFIX>{nick} {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) return LEXNOMEM;
-	*p = (struct prefix){.nick=strdup(yytext)};
-	yylval->prefix = p;
-	return PREFIX;
+
+
+<PARAMS>[^:[:space:]\r\n]{trailing} {
+	yylval->str = yytext;
+	return MIDDLE;
 }
-<PREFIX>{host} {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) return LEXNOMEM;
-	*p = (struct prefix){.host=strdup(yytext)};
-	yylval->prefix = p;
-	return PREFIX;
-}
-<PREFIX>{nick}!{user} {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) return LEXNOMEM;
-	char *split = strchr(yytext, '!');
-	*split = '\0';
-	*p = (struct prefix){
-		.nick=strdup(yytext),
-		.user=strdup(split+1)
-	};
-	yylval->prefix = p;
-	return PREFIX;
-}
-<PREFIX>{nick}@{host} {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) return LEXNOMEM;
-	char *split = strchr(yytext, '@');
-	*split = '\0';
-	*p = (struct prefix){
-		.nick=strdup(yytext),
-		.host=strdup(split+1)
-	};
-	yylval->prefix = p;
-	return PREFIX;
-}
-<PREFIX>{nick}!{user}@{host} {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) return LEXNOMEM;
-	char *split = strchr(yytext, '!'),
-	     *split2 = strchr(split, '@');
-	*split2 = *split = '\0';
-	*p = (struct prefix){
-		.nick=strdup(yytext),
-		.user=strdup(split+1),
-		.host=strdup(split2+1)
-	};
-	yylval->prefix = p;
-	return PREFIX;
+<PARAMS>{trailing} {
+	BEGIN INITIAL;
+	yylval->str = yytext;
+	return TRAILING;
 }
 
-<TAGS>\+?({host}\/)?{keyname}  { yylval->str = yytext; return KEY; }
 
-@ { BEGIN TAGS; return *yytext; }
-: { BEGIN PREFIX; return *yytext; }
 
-<*>. { return *yytext; }
+<*>\n|\r\n { return CRLF; }

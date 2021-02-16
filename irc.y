@@ -30,7 +30,7 @@
 	struct irc_message
 	{
 		HashTable *tags;
-		struct prefix *prefix;
+		char *prefix;
 		char *command;
 		SListEntry *params;
 	};
@@ -43,7 +43,6 @@
 	HashTablePair *pair;
 	SListEntry *list;
 	struct irc_message *msg;
-	struct prefix *prefix;
 }
 
 %parse-param {struct irc_message **result}
@@ -58,7 +57,7 @@
 
 %token          SPACE CRLF LEXNOMEM
 %token <str>    COMMAND ESCAPED_VALUE MIDDLE TRAILING KEY
-%token <prefix> PREFIX
+                PREFIX
 
 %type <msg> message
 %type <map> tags
@@ -75,7 +74,7 @@ message :
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.tags=$2, .prefix=$5, .command=$7, .params=$8
+		.tags=$2, .prefix=strdup($5), .command=$7, .params=$8
 	};
 	$$ = m;
   }
@@ -91,7 +90,7 @@ message :
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.prefix=$2, .command=$4, .params=$5
+		.prefix=strdup($2), .command=$4, .params=$5
 	};
 	$$ = m;
   }
