@@ -56,15 +56,14 @@
 	void slist_free_data(SListEntry *l);
 }
 
-%token       SPACE CRLF
-%token <str> COMMAND ESCAPED_VALUE MIDDLE TRAILING
-             HOST NICK USER KEY
+%token          SPACE CRLF LEXNOMEM
+%token <str>    COMMAND ESCAPED_VALUE MIDDLE TRAILING KEY
+%token <prefix> PREFIX
 
 %type <msg> message
 %type <map> tags
 %type <pair> tag
 %type <list> params
-%type <prefix> prefix
 
 %%
 
@@ -72,7 +71,7 @@ final : message { *result = $1; return 0; }
 	  ;
 
 message :
-  '@' tags SPACE ':' prefix SPACE COMMAND params CRLF {
+  '@' tags SPACE ':' PREFIX SPACE COMMAND params CRLF {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
@@ -88,7 +87,7 @@ message :
 	};
 	$$ = m;
   }
-|                ':' prefix SPACE COMMAND params CRLF {
+|                ':' PREFIX SPACE COMMAND params CRLF {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
@@ -194,39 +193,6 @@ params :
 		YYNOMEM;
 	}
 	$$ = before;
-  }
-;
-
-prefix :
-  HOST {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	*p = (struct prefix){.host=strdup($1)};
-	$$ = p;
-  }
-| NICK '!' USER '@' HOST {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	*p = (struct prefix){.nick=strdup($1), .user=strdup($3), .host=strdup($5)};
-	$$ = p;
-  }
-| NICK '!' USER {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	*p = (struct prefix){.nick=strdup($1), .user=strdup($3)};
-	$$ = p;
-  }
-| NICK          '@' HOST {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	*p = (struct prefix){.nick=strdup($1), .host=strdup($3)};
-	$$ = p;
-  }
-| NICK {
-	struct prefix *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	*p = (struct prefix){.nick=strdup($1)};
-	$$ = p;
   }
 ;
 
