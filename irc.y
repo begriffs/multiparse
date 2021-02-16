@@ -56,7 +56,7 @@
 }
 
 %token          SPACE CRLF LEXNOMEM
-%token <str>    COMMAND ESCAPED_VALUE MIDDLE TRAILING KEY
+%token <str>    COMMAND MIDDLE TRAILING TAG
                 PREFIX
 
 %type <msg> message
@@ -70,35 +70,35 @@ final : message { *result = $1; return 0; }
 	  ;
 
 message :
-  '@' tags SPACE ':' PREFIX SPACE COMMAND params CRLF {
+  '@' tags SPACE ':' PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.tags=$2, .prefix=strdup($5), .command=$7, .params=$8
+		.tags=$2, .prefix=strdup($5), .command=$7, .params=$9
 	};
 	$$ = m;
   }
-| '@' tags SPACE                  COMMAND params CRLF {
+| '@' tags SPACE                  COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.tags=$2, .command=$4, .params=$5
+		.tags=$2, .command=$4, .params=$6
 	};
 	$$ = m;
   }
-|                ':' PREFIX SPACE COMMAND params CRLF {
+|                ':' PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.prefix=strdup($2), .command=$4, .params=$5
+		.prefix=strdup($2), .command=$4, .params=$6
 	};
 	$$ = m;
   }
-|                                 COMMAND params CRLF {
+|                                 COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m) YYNOMEM;
 	*m = (struct irc_message) {
-		.command=$1, .params=$2
+		.command=$1, .params=$3
 	};
 	$$ = m;
   }
@@ -116,8 +116,6 @@ tags :
 		hash_table_free(t);
 		YYNOMEM;
 	}
-	free($1->key);
-	/* preserve $1->value though */
 	free($1);
 	$$ = t;
   }
@@ -130,33 +128,20 @@ tags :
 		hash_table_free($1);
 		YYNOMEM;
 	}
-	free($3->key);
-	/* preserve $3->value though */
 	free($3);
 	$$ = $1;
   }
 ;
 
 tag :
-  KEY {
+  TAG {
 	HashTablePair *p = malloc(sizeof *p);
 	if (!p) YYNOMEM;
+	char *split = strchr($1, '=');
+	if (split)
+		*split = '\0';
 	p->key = strdup($1);
-	p->value = calloc(1,1);
-	if (!p->key || !p->value)
-	{
-		free(p->key);
-		free(p->value);
-		free(p);
-		YYNOMEM;
-	}
-	$$ = p;
-  }
-| KEY '=' ESCAPED_VALUE {
-	HashTablePair *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
-	p->key = strdup($1);
-	p->value = strdup($3);
+	p->value = split ? strdup(split+1) : calloc(1,1);
 	if (!p->key || !p->value)
 	{
 		free(p->key);
@@ -169,8 +154,8 @@ tag :
 ;
 
 params :
-  SPACE ':' TRAILING {
-	char *p = strdup($3);
+  TRAILING {
+	char *p = strdup($1);
 	SListEntry *l = NULL;
 	slist_prepend(&l, p);
 	if (!p || !l)
@@ -181,8 +166,8 @@ params :
 	}
 	$$ = l;
   }
-| SPACE MIDDLE params {
-	char *p = strdup($2);
+| MIDDLE SPACE params {
+	char *p = strdup($1);
 	SListEntry *l = $3, *before = slist_prepend(&l, p);
 	if (!p || !before)
 	{

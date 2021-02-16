@@ -35,18 +35,15 @@ trailing [^[:space:]\r\n]*
 
 @ { BEGIN TAGS; return *yytext; }
 
-<TAGS>\+?({host}\/)?{keyname}  {
+<TAGS>\+?({host}\/)?{keyname}(={keyval})?  {
 	yylval->str = yytext;
-	return KEY;
-}
-<TAGS>{keyval} {
-	yylval->str = yytext;
-	return ESCAPED_VALUE;
+	return TAG;
 }
 <TAGS>{space} {
 	BEGIN INITIAL;
 	return SPACE;
 }
+<TAGS>; { return ';'; }
 
 
 
@@ -75,11 +72,12 @@ trailing [^[:space:]\r\n]*
 	yylval->str = yytext;
 	return MIDDLE;
 }
-<PARAMS>{trailing} {
+<PARAMS>:{trailing} {
 	BEGIN INITIAL;
-	yylval->str = yytext;
+	yylval->str = yytext+1; /* trim : */
 	return TRAILING;
 }
+<PARAMS>{space} { return SPACE; }
 
 
 

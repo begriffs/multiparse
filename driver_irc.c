@@ -12,7 +12,7 @@ void pretty(struct irc_message *m)
 		while (hash_table_iter_has_more(&i))
 		{
 			HashTablePair t = hash_table_iter_next(&i);
-			printf("\t%s=%s\n", t.key, t.value);
+			printf("\t'%s'='%s'\n", t.key, t.value);
 		}
 	}
 }
