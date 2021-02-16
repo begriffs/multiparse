@@ -29,7 +29,7 @@ keyval [^[:space:];\r\n]*
 command [[:alpha:]]+|[[:digit:]]{3}
 trailing [^[:space:]\r\n]*
 
-%x PARAMS TAGS PREFIX
+%x PARAMS TAGS
 
 %%
 
@@ -47,24 +47,16 @@ trailing [^[:space:]\r\n]*
 
 
 
-: {
-	BEGIN PREFIX;
-	return *yytext;
-}
-
-<PREFIX>{host}|{nick}(!{user})?(@{host})? {
-	yylval->str = yytext;
+:({host}|{nick}(!{user})?(@{host})?) {
+	yylval->str = yytext+1;
 	return PREFIX;
 }
-<PREFIX>{space} { BEGIN INITIAL; return SPACE; }
-
-
-
 {command} {
 	yylval->str = yytext;
 	BEGIN PARAMS;
 	return COMMAND;
 }
+{space} { return SPACE; }
 
 
 
