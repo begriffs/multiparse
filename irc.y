@@ -72,15 +72,16 @@ final : message { *result = $1; return 0; }
 message :
   '@' tags SPACE PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m) YYNOMEM;
+	if (!m || !$4 || !$6) YYNOMEM;
+	printf("*** %s ***\n", $4);
 	*m = (struct irc_message) {
-		.tags=$2, .prefix=strdup($4), .command=$6, .params=$8
+		.tags=$2, .prefix=$4, .command=$6, .params=$8
 	};
 	$$ = m;
   }
 | '@' tags SPACE              COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m) YYNOMEM;
+	if (!m || !$4) YYNOMEM;
 	*m = (struct irc_message) {
 		.tags=$2, .command=$4, .params=$6
 	};
@@ -88,15 +89,15 @@ message :
   }
 |                PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m) YYNOMEM;
+	if (!m || !$1 || !$3) YYNOMEM;
 	*m = (struct irc_message) {
-		.prefix=strdup($1), .command=$3, .params=$5
+		.prefix=$1, .command=$3, .params=$5
 	};
 	$$ = m;
   }
 |                             COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m) YYNOMEM;
+	if (!m || !$1) YYNOMEM;
 	*m = (struct irc_message) {
 		.command=$1, .params=$3
 	};
@@ -136,11 +137,11 @@ tags :
 tag :
   TAG {
 	HashTablePair *p = malloc(sizeof *p);
-	if (!p) YYNOMEM;
+	if (!p || !$1) YYNOMEM;
 	char *split = strchr($1, '=');
 	if (split)
 		*split = '\0';
-	p->key = strdup($1);
+	p->key = $1;
 	p->value = split ? strdup(split+1) : calloc(1,1);
 	if (!p->key || !p->value)
 	{
@@ -155,7 +156,7 @@ tag :
 
 params :
   TRAILING {
-	char *p = strdup($1);
+	char *p = $1;
 	SListEntry *l = NULL;
 	slist_prepend(&l, p);
 	if (!p || !l)
@@ -167,7 +168,7 @@ params :
 	$$ = l;
   }
 | MIDDLE SPACE params {
-	char *p = strdup($1);
+	char *p = $1;
 	SListEntry *l = $3, *before = slist_prepend(&l, p);
 	if (!p || !before)
 	{

@@ -36,7 +36,7 @@ trailing [^[:space:]\r\n]*
 @ { BEGIN TAGS; return *yytext; }
 
 <TAGS>\+?({host}\/)?{keyname}(={keyval})?  {
-	yylval->str = yytext;
+	yylval->str = strdup(yytext);
 	return TAG;
 }
 <TAGS>{space} {
@@ -48,11 +48,11 @@ trailing [^[:space:]\r\n]*
 
 
 :({host}|{nick}(!{user})?(@{host})?) {
-	yylval->str = yytext+1;
+	yylval->str = strdup(yytext+1);
 	return PREFIX;
 }
 {command} {
-	yylval->str = yytext;
+	yylval->str = strdup(yytext);
 	BEGIN PARAMS;
 	return COMMAND;
 }
@@ -61,12 +61,12 @@ trailing [^[:space:]\r\n]*
 
 
 <PARAMS>[^:[:space:]\r\n]{trailing} {
-	yylval->str = yytext;
+	yylval->str = strdup(yytext);
 	return MIDDLE;
 }
 <PARAMS>:{trailing} {
 	BEGIN INITIAL;
-	yylval->str = yytext+1; /* trim : */
+	yylval->str = strdup(yytext+1); /* trim : */
 	return TRAILING;
 }
 <PARAMS>{space} { return SPACE; }
