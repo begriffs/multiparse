@@ -27,7 +27,8 @@ user [[:alpha:]][[:alnum:]]*
 keyname [[:alnum:]\-]+
 keyval [^[:space:];\r\n]*
 command [[:alpha:]]+|[[:digit:]]{3}
-trailing [^[:space:]\r\n]*
+middle [^:[:space:]\r\n][^[:space:]\r\n]*
+trailing [^\r\n]*
 
 %x PARAMS TAGS
 
@@ -60,7 +61,7 @@ trailing [^[:space:]\r\n]*
 
 
 
-<PARAMS>[^:[:space:]\r\n]{trailing} {
+<PARAMS>{middle} {
 	yylval->str = strdup(yytext);
 	return MIDDLE;
 }
