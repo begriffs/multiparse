@@ -15,6 +15,18 @@ void pretty(struct irc_message *m)
 			printf("\t'%s'='%s'\n", t.key, t.value);
 		}
 	}
+	if (m->prefix)
+		printf("Prefix: %s\n", m->prefix);
+	if (m->command)
+		printf("Command: %s\n", m->command);
+	if (!m->params)
+		return;
+	puts("Params:");
+	SListIterator i;
+	char *p;
+	slist_iterate(&m->params, &i);
+	while ((p = (char *)slist_iter_next(&i)) != SLIST_NULL)
+		printf("\t%s\n", p);
 }
 
 int main(void)
