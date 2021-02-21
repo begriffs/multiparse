@@ -66,6 +66,12 @@
 
 %%
 
+/*
+Rules come from a combo of these pages:
+https://ircv3.net/specs/extensions/message-tags
+https://tools.ietf.org/html/rfc1459#section-2.3.1
+*/
+
 final : message { *result = $1; return 0; }
 	  ;
 
@@ -73,7 +79,6 @@ message :
   '@' tags SPACE PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m || !$4 || !$6) YYNOMEM;
-	printf("*** %s ***\n", $4);
 	*m = (struct irc_message) {
 		.tags=$2, .prefix=$4, .command=$6, .params=$8
 	};
@@ -201,49 +206,3 @@ void slist_free_data(SListEntry *l)
 	while ((p = slist_iter_next(&i)) != NULL)
 		free(p);
 }
-
-/*
-https://ircv3.net/specs/extensions/message-tags
-
-<message>       ::= ['@' <tags> <SPACE>] [':' <prefix> <SPACE> ] <command> <params> <crlf>
-<tags>          ::= <tag> [';' <tag>]*
-<tag>           ::= <key> ['=' <escaped_value>]
-<key>           ::= [ <client_prefix> ] [ <vendor> '/' ] <key_name>
-<client_prefix> ::= '+'
-<key_name>      ::= <non-empty sequence of ascii letters, digits, hyphens ('-')>
-<escaped_value> ::= <sequence of zero or more utf8 characters except NUL, CR, LF, semicolon (`;`) and SPACE>
-<vendor>        ::= <host>
-
-https://tools.ietf.org/html/rfc1459#section-2.3.1
-
-<message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
-<prefix>   ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
-<command>  ::= <letter> { <letter> } | <number> <number> <number>
-<SPACE>    ::= ' ' { ' ' }
-<params>   ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
-
-<middle>   ::= <Any *non-empty* sequence of octets not including SPACE
-               or NUL or CR or LF, the first of which may not be ':'>
-<trailing> ::= <Any, possibly *empty*, sequence of octets not including
-                 NUL or CR or LF>
-
-<crlf>     ::= CR LF
-
-<target>     ::= <to> [ "," <target> ]
-<to>         ::= <channel> | <user> '@' <servername> | <nick> | <mask>
-<channel>    ::= ('#' | '&') <chstring>
-<servername> ::= <host>
-<host>       ::= see RFC 952 [DNS:4] for details on allowed hostnames
-<nick>       ::= <letter> { <letter> | <number> | <special> }
-<mask>       ::= ('#' | '$') <chstring>
-<chstring>   ::= <any 8bit code except SPACE, BELL, NUL, CR, LF and
-                  comma (',')>
-
-<user>       ::= <nonwhite> { <nonwhite> }
-<letter>     ::= 'a' ... 'z' | 'A' ... 'Z'
-<number>     ::= '0' ... '9'
-<special>    ::= '-' | '[' | ']' | '\' | '`' | '^' | '{' | '}'
-
-<nonwhite>   ::= <any 8bit code except SPACE (0x20), NUL (0x0), CR
-                  (0xd), and LF (0xa)>
-*/
