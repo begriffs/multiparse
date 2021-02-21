@@ -22,8 +22,8 @@ int ircerror(const char *msg);
 
 space [[:space:]]+
 host [[:alnum:]][[:alnum:]\.\-]*
-nick [[:alpha:]][[:alnum:]\-\[\]\\`^{}]*
-user [[:alpha:]][[:alnum:]]*
+nick [[:alpha:]][[:alnum:]\-\[\]\\`^{}_]*
+user [~[:alpha:]][[:alnum:]]*
 keyname [[:alnum:]\-]+
 keyval [^[:space:];\r\n]*
 command [[:alpha:]]+|[[:digit:]]{3}
