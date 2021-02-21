@@ -56,10 +56,9 @@
 }
 
 %token          SPACE CRLF LEXNOMEM
-%token <str>    COMMAND MIDDLE TRAILING TAG
-                PREFIX
+%token <str>    COMMAND MIDDLE TRAILING TAG PREFIX
 
-%type <msg> message
+%type <msg> message tagged_message prefixed_message
 %type <map> tags
 %type <pair> tag
 %type <list> params
@@ -72,35 +71,26 @@ https://ircv3.net/specs/extensions/message-tags
 https://tools.ietf.org/html/rfc1459#section-2.3.1
 */
 
-final : message { *result = $1; return 0; }
-	  ;
+final : tagged_message { *result = $1; return 0; } ;
 
-message :
-  '@' tags SPACE ':' PREFIX SPACE COMMAND SPACE params {
-	struct irc_message *m = malloc(sizeof *m);
-	if (!m || !$5 || !$7) YYNOMEM;
-	*m = (struct irc_message) {
-		.tags=$2, .prefix=$5, .command=$7, .params=$9
-	};
+tagged_message : '@' tags SPACE prefixed_message {
+	struct irc_message *m = $4;
+	m->tags = $2;
 	$$ = m;
   }
-| '@' tags SPACE                  COMMAND SPACE params {
-	struct irc_message *m = malloc(sizeof *m);
-	if (!m || !$4) YYNOMEM;
-	*m = (struct irc_message) {
-		.tags=$2, .command=$4, .params=$6
-	};
+| prefixed_message
+;
+
+prefixed_message : ':' PREFIX SPACE message {
+	if (!$2) YYNOMEM;
+	struct irc_message *m = $4;
+	m->prefix = $2;
 	$$ = m;
   }
-|                ':' PREFIX SPACE COMMAND SPACE params {
-	struct irc_message *m = malloc(sizeof *m);
-	if (!m || !$2 || !$4) YYNOMEM;
-	*m = (struct irc_message) {
-		.prefix=$2, .command=$4, .params=$6
-	};
-	$$ = m;
-  }
-|                                 COMMAND SPACE params {
+| message
+;
+
+message : COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m || !$1) YYNOMEM;
 	*m = (struct irc_message) {
