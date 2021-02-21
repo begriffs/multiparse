@@ -76,15 +76,15 @@ final : message { *result = $1; return 0; }
 	  ;
 
 message :
-  '@' tags SPACE PREFIX SPACE COMMAND SPACE params {
+  '@' tags SPACE ':' PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m || !$4 || !$6) YYNOMEM;
+	if (!m || !$5 || !$7) YYNOMEM;
 	*m = (struct irc_message) {
-		.tags=$2, .prefix=$4, .command=$6, .params=$8
+		.tags=$2, .prefix=$5, .command=$7, .params=$9
 	};
 	$$ = m;
   }
-| '@' tags SPACE              COMMAND SPACE params {
+| '@' tags SPACE                  COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m || !$4) YYNOMEM;
 	*m = (struct irc_message) {
@@ -92,15 +92,15 @@ message :
 	};
 	$$ = m;
   }
-|                PREFIX SPACE COMMAND SPACE params {
+|                ':' PREFIX SPACE COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
-	if (!m || !$1 || !$3) YYNOMEM;
+	if (!m || !$2 || !$4) YYNOMEM;
 	*m = (struct irc_message) {
-		.prefix=$1, .command=$3, .params=$5
+		.prefix=$2, .command=$4, .params=$6
 	};
 	$$ = m;
   }
-|                             COMMAND SPACE params {
+|                                 COMMAND SPACE params {
 	struct irc_message *m = malloc(sizeof *m);
 	if (!m || !$1) YYNOMEM;
 	*m = (struct irc_message) {

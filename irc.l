@@ -30,7 +30,7 @@ command [[:alpha:]]+|[[:digit:]]{3}
 middle [^:[:space:]\r\n][^[:space:]\r\n]*
 trailing [^\r\n]*
 
-%x PARAMS TAGS
+%x TAGS PREFIX PARAMS
 
 %%
 
@@ -47,9 +47,11 @@ trailing [^\r\n]*
 <TAGS>; { return ';'; }
 
 
+: { BEGIN PREFIX; return *yytext; }
 
-:({host}|{nick}(!{user})?(@{host})?) {
-	yylval->str = strdup(yytext+1);
+<PREFIX>({host}|{nick}(!{user})?(@{host})?) {
+	BEGIN INITIAL;
+	yylval->str = strdup(yytext);
 	return PREFIX;
 }
 {command} {
