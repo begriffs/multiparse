@@ -30,49 +30,49 @@ command [[:alpha:]]+|[[:digit:]]{3}
 middle [^:[:space:]\r\n][^[:space:]\r\n]*
 trailing [^\r\n]*
 
-%x TAGS PREFIX PARAMS
+%x IN_TAGS IN_PREFIX IN_PARAMS
 
 %%
 
-@ { BEGIN TAGS; return *yytext; }
+@ { BEGIN IN_TAGS; return *yytext; }
 
-<TAGS>\+?({host}\/)?{keyname}(={keyval})?  {
+<IN_TAGS>\+?({host}\/)?{keyname}(={keyval})?  {
 	yylval->str = strdup(yytext);
 	return TAG;
 }
-<TAGS>{space} {
+<IN_TAGS>{space} {
 	BEGIN INITIAL;
 	return SPACE;
 }
-<TAGS>; { return ';'; }
+<IN_TAGS>; { return ';'; }
 
 
-: { BEGIN PREFIX; return *yytext; }
+: { BEGIN IN_PREFIX; return *yytext; }
 
-<PREFIX>({host}|{nick}(!{user})?(@{host})?) {
+<IN_PREFIX>({host}|{nick}(!{user})?(@{host})?) {
 	BEGIN INITIAL;
 	yylval->str = strdup(yytext);
 	return PREFIX;
 }
 {command} {
 	yylval->str = strdup(yytext);
-	BEGIN PARAMS;
+	BEGIN IN_PARAMS;
 	return COMMAND;
 }
 {space} { return SPACE; }
 
 
 
-<PARAMS>{middle} {
+<IN_PARAMS>{middle} {
 	yylval->str = strdup(yytext);
 	return MIDDLE;
 }
-<PARAMS>:{trailing} {
+<IN_PARAMS>:{trailing} {
 	BEGIN INITIAL;
 	yylval->str = strdup(yytext+1); /* trim : */
 	return TRAILING;
 }
-<PARAMS>{space} { return SPACE; }
+<IN_PARAMS>{space} { return SPACE; }
 
 
 
