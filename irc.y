@@ -179,6 +179,9 @@ params :
 	}
 	$$ = before;
   }
+| %empty {
+	$$ = NULL;
+}
 ;
 
 %%
