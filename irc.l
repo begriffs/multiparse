@@ -35,6 +35,15 @@ trailing [^\r\n]*
 %%
 
 @ { BEGIN IN_TAGS; return *yytext; }
+: { BEGIN IN_PREFIX; return *yytext; }
+
+{space} { return SPACE; }
+{command} {
+	yylval->str = strdup(yytext);
+	BEGIN IN_PARAMS;
+	return COMMAND;
+}
+
 
 <IN_TAGS>\+?({host}\/)?{keyname}(={keyval})?  {
 	yylval->str = strdup(yytext);
@@ -47,33 +56,23 @@ trailing [^\r\n]*
 <IN_TAGS>; { return ';'; }
 
 
-: { BEGIN IN_PREFIX; return *yytext; }
-
 <IN_PREFIX>({host}|{nick}(!{user})?(@{host})?) {
-	BEGIN INITIAL;
 	yylval->str = strdup(yytext);
+	BEGIN INITIAL;
 	return PREFIX;
 }
-{command} {
-	yylval->str = strdup(yytext);
-	BEGIN IN_PARAMS;
-	return COMMAND;
-}
-{space} { return SPACE; }
 
 
-
+<IN_PARAMS>{space} { return SPACE; }
 <IN_PARAMS>{middle} {
 	yylval->str = strdup(yytext);
 	return MIDDLE;
 }
 <IN_PARAMS>:{trailing} {
-	BEGIN INITIAL;
 	yylval->str = strdup(yytext+1); /* trim : */
+	BEGIN INITIAL;
 	return TRAILING;
 }
-<IN_PARAMS>{space} { return SPACE; }
-
 
 
 <*>\n|\r\n { return CRLF; }

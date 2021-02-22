@@ -74,9 +74,8 @@ https://tools.ietf.org/html/rfc1459#section-2.3.1
 final : tagged_message { *result = $1; return 0; } ;
 
 tagged_message : '@' tags SPACE prefixed_message {
-	struct irc_message *m = $4;
-	m->tags = $2;
-	$$ = m;
+	$4->tags = $2;
+	$$ = $4;
   }
 | prefixed_message
 ;
