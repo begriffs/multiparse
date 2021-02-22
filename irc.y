@@ -30,7 +30,7 @@
 	struct irc_message
 	{
 		HashTable *tags;
-		char *prefix;
+		struct prefix *prefix;
 		char *command;
 		SListEntry *params;
 	};
@@ -39,6 +39,7 @@
 %union
 {
 	char *str;
+	struct prefix *prefix;
 	HashTable *map;
 	HashTablePair *pair;
 	SListEntry *list;
@@ -56,7 +57,8 @@
 }
 
 %token          SPACE CRLF LEXNOMEM
-%token <str>    COMMAND MIDDLE TRAILING TAG PREFIX
+%token <str>    COMMAND MIDDLE TRAILING TAG
+%token <prefix> PREFIX
 
 %type <msg> message tagged_message prefixed_message
 %type <map> tags

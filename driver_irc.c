@@ -16,7 +16,9 @@ void pretty(struct irc_message *m)
 		}
 	}
 	if (m->prefix)
-		printf("Prefix: %s\n", m->prefix);
+		printf("Prefix: Nick %s, User %s, Host %s\n",
+		       m->prefix->nick, m->prefix->user,
+			   m->prefix->host);
 	if (m->command)
 		printf("Command: %s\n", m->command);
 	if (!m->params)

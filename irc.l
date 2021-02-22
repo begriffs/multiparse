@@ -56,8 +56,26 @@ trailing [^\r\n]*
 <IN_TAGS>; { return ';'; }
 
 
-<IN_PREFIX>({host}|{nick}(!{user})?(@{host})?) {
-	yylval->str = strdup(yytext);
+<IN_PREFIX>({host})|({nick})(!{user})?(@{host})? {
+	struct prefix *p = malloc(sizeof *p);
+	if (!p)
+		goto done;
+	char *bang = strchr(yytext, '!'),
+	     *at   = strchr(yytext, '@');
+	if (!bang && !at)
+	{
+		p->host = strdup(yytext);
+		goto done;
+	}
+	if (bang) *bang = '\0';
+	if (at) *at = '\0';
+	p->nick = strdup(yytext);
+	if (bang)
+		p->user = strdup(bang+1);
+	if (at)
+		p->host = strdup(at+1);
+done:
+	yylval->prefix = p;
 	BEGIN INITIAL;
 	return PREFIX;
 }
