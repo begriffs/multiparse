@@ -8,10 +8,10 @@
 
 #define YY_EXIT_FAILURE ((void)yyscanner, EXIT_FAILURE)
 
-/* XOPEN for strdup */
-#define _XOPEN_SOURCE 600
 #include <limits.h>
 #include <stdlib.h>
+/* XOPEN for strdup */
+#define _XOPEN_SOURCE 600
 #include <string.h>
 
 /* seems like a bug that I have to do this */
