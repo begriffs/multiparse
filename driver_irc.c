@@ -46,7 +46,10 @@ int main(void)
 	int e = ircparse(&msg, scanner);
 	printf("Code = %d\n", e);
 	if (e == 0)
+	{
 		pretty(msg);
+		irc_message_free(msg);
+	}
 
 	irclex_destroy(scanner);
 	return 0;

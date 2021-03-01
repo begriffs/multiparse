@@ -56,6 +56,10 @@
 	void slist_free_data(SListEntry *l);
 }
 
+%code provides {
+	void irc_message_free(struct irc_message *msg);
+}
+
 %token          SPACE CRLF LEXNOMEM
 %token <str>    COMMAND MIDDLE TRAILING TAG
 %token <prefix> PREFIX
@@ -64,6 +68,25 @@
 %type <map> tags
 %type <pair> tag
 %type <list> params
+
+%destructor {
+	irc_message_free($$);
+} <msg>
+
+%destructor {
+	hash_table_free($$);
+} <map>
+
+%destructor {
+	free($$->key);
+	free($$->value);
+	free($$);
+} <pair>
+
+%destructor {
+	slist_free_data($$);
+	slist_free($$);
+} <list>
 
 %%
 
@@ -105,6 +128,7 @@ tags :
   tag {
 	HashTable *t = hash_table_new(string_hash, string_equal);
 	if (!t) YYNOMEM;
+	hash_table_register_free_functions(t, free, free);
 	if (!hash_table_insert(t, $1->key, $1->value))
 	{
 		free($1->key);
@@ -125,6 +149,8 @@ tags :
 		hash_table_free($1);
 		YYNOMEM;
 	}
+	free($3->key);
+	free($3->value);
 	free($3);
 	$$ = $1;
   }
@@ -196,4 +222,16 @@ void slist_free_data(SListEntry *l)
 	slist_iterate(&l, &i);
 	while ((p = slist_iter_next(&i)) != NULL)
 		free(p);
+}
+
+void irc_message_free(struct irc_message *msg)
+{
+	if (msg->tags)
+		hash_table_free(msg->tags);
+	free(msg->prefix->host);
+	free(msg->prefix->nick);
+	free(msg->prefix);
+	free(msg->command);
+	slist_free_data(msg->params);
+	slist_free(msg->params);
 }
