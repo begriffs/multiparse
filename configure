@@ -17,7 +17,7 @@ EOF
 
 # everybody uses a lexer
 
-for fmt in words lisp csv adif morse irc
+for fmt in words lisp csv adif irc
 do
 cat >> config.mk <<EOF
 $fmt.lex.c $fmt.lex.h : $fmt.l
@@ -31,11 +31,11 @@ done
 
 # and some user a parser too
 
-for fmt in lisp csv adif morse irc
+for fmt in lisp csv adif irc
 do
 cat >> config.mk <<EOF
 $fmt.tab.c $fmt.tab.h : $fmt.y parsers.h
-	\$(YACC) \$(YFLAGS) -d -b $fmt $fmt.y
+	\$(YACC) \$(YFLAGS) -d -b $fmt -i -p $fmt $fmt.y
 driver_$fmt.o : $fmt.tab.h
 
 $fmt.lex.c $fmt.lex.h : $fmt.tab.h

@@ -12,8 +12,6 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#define YYSTYPE ADIFSTYPE
-
 static char *read_n(yyscan_t scanner, size_t n);
 static struct adif_tag *adif_tag_create(int namelen);
 %}
@@ -32,7 +30,7 @@ TAGTYPE_RE [BNDTSIMGEL]
 \<{TAGNAME_RE}:{TAGLEN_RE}:{TAGTYPE_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
-	*yylval = t;
+	yylval->tag = t;
 	if (!t)
 		return TAG;
 
@@ -46,7 +44,7 @@ TAGTYPE_RE [BNDTSIMGEL]
 \<{TAGNAME_RE}:{TAGLEN_RE}\> {
 	size_t datalen;
 	struct adif_tag *t = adif_tag_create(yyleng);
-	*yylval = t;
+	yylval->tag = t;
 	if (!t)
 		return TAG;
 

@@ -4,7 +4,7 @@
 /* new versions of Bison will have YYNOMEM; until then
  * use undocumented feature */
 #ifndef YYNOMEM
-#define YYNOMEM goto yyexhaustedlab
+#define YYNOMEM /* TBD */
 #endif
 
 #endif

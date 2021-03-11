@@ -1,6 +1,4 @@
-%define api.pure true
-%define api.prefix {lisp}
-%define parse.error verbose
+%pure-parser
 
 %code top {
 	/* XOPEN for strdup */
@@ -36,7 +34,8 @@
 }
 
 %parse-param {struct sexpr **result}
-%param {void *scanner}
+%lex-param {void *scanner}
+%parse-param {void *scanner}
 
 %code {
 	int lisperror(void *foo, char const *msg, const void *s);

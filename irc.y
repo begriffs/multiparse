@@ -1,6 +1,4 @@
-%define api.pure true
-%define api.prefix {irc}
-%define parse.error verbose
+%pure-parser
 
 %code top {
 	/* XOPEN for strdup */
@@ -14,11 +12,13 @@
 	#include "parsers.h"
 	#include <libcalg/compare-string.h>
 	#include <libcalg/hash-string.h>
+	#include <libcalg/hash-table.h>
+	#include <libcalg/slist.h>
 }
 
 %code requires {
-	#include <libcalg/slist.h>
 	#include <libcalg/hash-table.h>
+	#include <libcalg/slist.h>
 
 	struct prefix
 	{
@@ -47,12 +47,10 @@
 }
 
 %parse-param {struct irc_message **result}
-%param {void *scanner}
+%lex-param {void *scanner}
+%parse-param {void *scanner}
 
 %code {
-	int ircerror(void *foo, char const *msg, const void *arg);
-	int irclex(void *lval, const void *s);
-
 	void slist_free_data(SListEntry *l);
 }
 
@@ -68,25 +66,6 @@
 %type <map> tags
 %type <pair> tag
 %type <list> params
-
-%destructor {
-	irc_message_free($$);
-} <msg>
-
-%destructor {
-	hash_table_free($$);
-} <map>
-
-%destructor {
-	free($$->key);
-	free($$->value);
-	free($$);
-} <pair>
-
-%destructor {
-	slist_free_data($$);
-	slist_free($$);
-} <list>
 
 %%
 
@@ -201,7 +180,7 @@ params :
 	}
 	$$ = before;
   }
-| %empty {
+| /* empty */ {
 	$$ = NULL;
 }
 ;

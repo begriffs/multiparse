@@ -1,13 +1,13 @@
 .POSIX:
 
 CFLAGS = -std=c99 -g -pedantic -Wall -Wextra -Wshadow -D_POSIX_C_SOURCE=200112L
-YFLAGS += -Dparse.trace -Wno-yacc -Wempty-rule
+YFLAGS += -t
 
 # yes, sorry, need extensions beyond POSIX lex/yacc
 LEX = flex
-YACC = bison
+YACC = byacc
 
-COMBOS = adif csv lisp morse irc
+COMBOS = adif csv lisp irc
 LEXO     = $(COMBOS:=.lex.o) words.o
 YACCO    = $(COMBOS:=.tab.o)
 

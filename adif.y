@@ -1,6 +1,4 @@
-%define api.pure true
-%define api.prefix {adif}
-%define parse.error verbose
+%pure-parser
 
 %code top {
 	#include <assert.h>
@@ -19,25 +17,15 @@
 	};
 }
 
-%define api.value.type {struct adif_tag*}
-%param {void *scanner}
-
-%code {
-	int adiferror(const void *s, const char *msg);
-	int adiflex(void *lval, const void *s);
+%union {
+	struct adif_tag *tag;
 }
 
-%token EOH EOR TAG HEADER_COMMENT
+%lex-param {void *scanner}
+%parse-param {void *scanner}
 
-%destructor {
-	free($$->name);
-	free($$->val);
-	free($$);
-} TAG
-
-%printer {
-	fprintf(yyo, "<%s>%s (%c)", $$->name, $$->val, $$->type);
-} TAG
+%token EOH EOR HEADER_COMMENT
+%token <tag> TAG
 
 %%
 

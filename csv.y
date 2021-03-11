@@ -1,6 +1,4 @@
-%define api.pure true
-%define api.prefix {csv}
-%define parse.error verbose
+%pure-parser
 
 %code top {
 	#include <assert.h>
@@ -8,6 +6,8 @@
 	#include <stdlib.h>
 	#include <string.h>
 	#include "parsers.h"
+
+	typedef void (*csv_row_callback)(struct csv_row *);
 }
 
 %code requires {
@@ -16,8 +16,6 @@
 		size_t alloced, len;
 		char *fs[]; /* C99 flexible array */
 	};
-
-	typedef void (*csv_row_callback)(struct csv_row *);
 }
 
 %union
@@ -26,7 +24,8 @@
 	struct csv_row *row;
 }
 
-%param {void *scanner}
+%lex-param {void *scanner}
+%parse-param {void *scanner}
 %parse-param {csv_row_callback callback}
 
 %code provides {
@@ -37,9 +36,6 @@
 }
 
 %code {
-	int csvlex(void *lval, const void *s);
-	int csverror(const void *s, const csv_row_callback c, const char *msg);
-
 	#define INITIAL_ROW_SZ 16
 }
 
@@ -47,28 +43,6 @@
 %token <str> ESCAPED NONESCAPED
 %type <str> field
 %type <row> row
-
-%destructor { free($$); } <str>
-%destructor { csv_row_free($$); } <row>
-
-%printer {
-	size_t i;
-	fputc('"', yyo);
-	for (i = 0; i < 6 && $$[i]; i++)
-	{
-		if ($$[i] == '"')
-			fprintf(yyo, "\"\"");
-		else
-			fputc($$[i], yyo);
-	}
-	if ($$[i])
-		fprintf(yyo, "..."); /* was truncated */
-	fputc('"', yyo);
-} <str>
-
-%printer {
-	fprintf(yyo, "row: %zu fields", $$->len);
-} <row>
 
 /* adapted from https://tools.ietf.org/html/rfc4180 */
 
@@ -112,7 +86,7 @@ row :
 ;
 
 field :
-  %empty          { $$ = calloc(1, 1); }
+  /* empty */        { $$ = calloc(1, 1); }
 | ESCAPED
 | NONESCAPED
 ;

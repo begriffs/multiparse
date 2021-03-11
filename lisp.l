@@ -14,9 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* seems like a bug that I have to do this */
-#define YYSTYPE LISPSTYPE
-
 int lisperror(const char *msg);
 %}
 

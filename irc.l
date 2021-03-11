@@ -14,9 +14,6 @@
 #define _XOPEN_SOURCE 600
 #include <string.h>
 
-/* seems like a bug that I have to do this */
-#define YYSTYPE IRCSTYPE
-
 int ircerror(const char *msg);
 %}
 

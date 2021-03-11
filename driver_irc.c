@@ -37,9 +37,6 @@ int main(void)
 	yyscan_t scanner;
 	struct irc_message *msg;
 
-	ircdebug = 1;
-
-
 	if ((i = irclex_init(&scanner)) != 0)
 		exit(i);
 

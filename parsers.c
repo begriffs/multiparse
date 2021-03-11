@@ -5,7 +5,6 @@
  */
 
 #define SCANNERS \
-	X(morse) \
 	X(adif) \
 	X(words) \
 	X(lisp) \

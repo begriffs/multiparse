@@ -9,8 +9,6 @@
 #include <string.h>
 #include "csv.tab.h"
 
-#define YYSTYPE CSVSTYPE
-
 #define YY_EXIT_FAILURE ((void)yyscanner, EXIT_FAILURE)
 %}
 
