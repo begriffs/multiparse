@@ -1,5 +1,7 @@
 %{
 #include "roman.tab.h"
+
+extern int yylval;
 %}
 
 %%
@@ -12,4 +14,5 @@ C { yylval = 100;  return C; }
 D { yylval = 500;  return D; }
 M { yylval = 1000; return M; }
 
-. { return *yytext; }
+\n ;
+.  { return *yytext; }
